@@ -1,0 +1,126 @@
+{
+  'eChannel': {
+    'ROUTING': {
+      'Routing.Account': 'd4fb618f-1f44-4dc0-bdce-4993f4b91b77',
+      'Routing.Key': '9ad43ed37de789486ab28f85bab29720',
+      'Routing.Id': '1464524676',
+      'Routing.Name': 'ORDER10001',
+      'Routing.Time': '20171213132453'
+    },
+    'Shipment': {
+      'Shipment.Sender': {
+        'Sender.Contractid': '',
+        'Sender.Name1': 'Vilkas Group Oy',
+        'Sender.Name2': '',
+        'Sender.Addr1': 'Finlaysoninkuja 19',
+        'Sender.Addr2': '',
+        'Sender.Addr3': '',
+        'Sender.Postcode': '33210',
+        'Sender.City': 'Tampere',
+        'Sender.Country': 'FI',
+        'Sender.Phone': '',
+        'Sender.Vatcode': '1234567-8',
+        'Sender.Email': 'tipi@vilkas.fi'
+      },
+      'Shipment.Recipient': {
+        'Recipient.Name1': 'John Doe',
+        'Recipient.Name2': '',
+        'Recipient.Addr1': 'Nikinväylä 3 test',
+        'Recipient.Addr2': '',
+        'Recipient.Addr3': '',
+        'Recipient.Postcode': '33100',
+        'Recipient.City': 'Tampere',
+        'Recipient.Country': 'FI',
+        'Recipient.Phone': '123456789',
+        'Recipient.Vatcode': '',
+        'Recipient.Email': 'tipi@vilkas.fi'
+      },
+      'Shipment.Consignment': {
+        'Consignment.Reference': '3211479032410',
+        'Consignment.Product': '90010',
+        'Consignment.Contentcode': 'D',
+        'Consignment.ReturnInstruction': 'E',
+        'Consignment.Invoicenumber': 'ORDER10001',
+        'Consignment.Merchandisevalue': 150,
+        'Consignment.Currency': 'eur',
+        'Consignment.AdditionalInfo': {
+          'AdditionalInfo.Text': 'Order no.: 1107-1 -- Reference no.: 284554'
+        },
+        'Consignment.AdditionalService': [
+          {
+            'AdditionalService.ServiceCode': '2106',
+            'AdditionalService.Specifier': {
+              'name': 'pickup_point_id',
+              'value': '8547'
+            }
+          },
+          {
+            'AdditionalService.ServiceCode': '3101',
+            'AdditionalService.Specifier': [
+              {
+                'name': 'amount',
+                'value': '150'
+              },
+              {
+                'name': 'account',
+                'value': 'FI2180000012345678'
+              },
+              {
+                'name': 'codbic',
+                'value': 'DABAFIHH'
+              },
+              {
+                'name': 'reference',
+                'value': '12344'
+              }
+            ]
+          }
+        ],
+        'Consignment.Parcel': [
+          {
+            'Parcel.Reference': '123456',
+            'Parcel.Packagetype': 'PC',
+            'Parcel.Weight': {
+              'weight_unit': 'kg',
+              'value': '1.2'
+            },
+            'Parcel.Volume': {
+              'unit': 'm3',
+              'value': '0.6'
+            },
+            'Parcel.Infocode': '1012',
+            'Parcel.Contents': 'Test products',
+            'Parcel.ReturnService': '123',
+            'Parcel.contentline': {
+              'contentline.description': 'Puita',
+              'contentline.quantity': 1,
+              'contentline.currency': 'EUR',
+              'contentline.netweight': 1,
+              'contentline.value': 100,
+              'contentline.countryoforigin': 'FI',
+              'contentline.tariffcode': '9608101000'
+            },
+            'Parcel.ParcelService': []
+          },
+          {
+            'Parcel.Reference': '123457',
+            'Parcel.Packagetype': 'PC',
+            'Parcel.Weight': {
+              'weight_unit': 'kg',
+              'value': '1.2'
+            },
+            'Parcel.Volume': {
+              'unit': 'm3',
+              'value': '0.6'
+            },
+            'Parcel.Infocode': '1012',
+            'Parcel.Contents': 'Muttereita ja puita',
+            'Parcel.ReturnService': '123',
+            'Parcel.contentline': {},
+            'Parcel.ParcelService': None
+          }
+        ]
+      }
+    }
+  }
+}

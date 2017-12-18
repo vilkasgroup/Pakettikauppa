@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eChannel>
+   <ROUTING>
+      <Routing.Account>d4fb618f-1f44-4dc0-bdce-4993f4b91b77</Routing.Account>
+      <Routing.Id>1464524676</Routing.Id>
+      <Routing.Key>9de2903abd77fc4a48b2c33a77420de8</Routing.Key>
+      <Routing.Name>ORDER10001</Routing.Name>
+      <Routing.Time>20171214112627</Routing.Time>
+   </ROUTING>
+   <PrintLabel responseFormat="File">
+      <Reference>1479034267</Reference>
+      <TrackingCode>JJFITESTLABEL1332</TrackingCode>
+   </PrintLabel>
+</eChannel>

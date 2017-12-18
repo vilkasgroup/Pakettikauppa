@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eChannel>
+   <ROUTING>
+      <Routing.Account>d4fb618f-1f44-4dc0-bdce-4993f4b91b77</Routing.Account>
+      <Routing.Id>1464524676</Routing.Id>
+      <Routing.Key>9ad43ed37de789486ab28f85bab29720</Routing.Key>
+      <Routing.Name>ORDER10001</Routing.Name>
+      <Routing.Time>20171213131346</Routing.Time>
+   </ROUTING>
+   <Shipment>
+      <Shipment.Recipient>
+         <Recipient.Name1>John Doe</Recipient.Name1>
+         <Recipient.Name2/>
+         <Recipient.Addr1>Nikinv\xc3\xa4yl\xc3\xa4 3 test</Recipient.Addr1>
+         <Recipient.Addr2/>
+         <Recipient.Addr3/>
+         <Recipient.Postcode>33100</Recipient.Postcode>
+         <Recipient.City>Tampere</Recipient.City>
+         <Recipient.Country>FI</Recipient.Country>
+         <Recipient.Phone>123456789</Recipient.Phone>
+         <Recipient.Vatcode/>
+         <Recipient.Email>tipi@vilkas.fi</Recipient.Email>
+      </Shipment.Recipient>
+      <Shipment.Sender>
+         <Sender.Contractid/>
+         <Sender.Name1>Vilkas Group Oy</Sender.Name1>
+         <Sender.Name2/>
+         <Sender.Addr1>Finlaysoninkuja 19</Sender.Addr1>
+         <Sender.Addr2/>
+         <Sender.Addr3/>
+         <Sender.Postcode>33210</Sender.Postcode>
+         <Sender.City>Tampere</Sender.City>
+         <Sender.Country>FI</Sender.Country>
+         <Sender.Phone/>
+         <Sender.Vatcode>1234567-8</Sender.Vatcode>
+         <Sender.Email>tipi@vilkas.fi</Sender.Email>
+      </Shipment.Sender>
+      <Shipment.Consignment>
+         <Consignment.Currency>EUR</Consignment.Currency>
+         <Consignment.Product>90010</Consignment.Product>
+         <Consignment.Reference>3211479032410</Consignment.Reference>
+         <Consignment.Invoicenumber>ORDER10001</Consignment.Invoicenumber>
+         <Consignment.AdditionalInfo>
+            <AdditionalInfo.Text>Order no.: 1107-1 -- Reference no.: 284554</AdditionalInfo.Text>
+         </Consignment.AdditionalInfo>
+         <Consignment.Contentcode>D</Consignment.Contentcode>
+         <Consignment.Infocode/>
+         <Consignment.ReturnInstruction>E</Consignment.ReturnInstruction>
+         <Consignment.Merchandisevalue>150</Consignment.Merchandisevalue>
+         <Consignment.AdditionalService>
+            <AdditionalService.ServiceCode>2106</AdditionalService.ServiceCode>
+            <AdditionalService.Specifier name="pickup_point_id">8547</AdditionalService.Specifier>
+         </Consignment.AdditionalService>
+         <Consignment.AdditionalService>
+            <AdditionalService.ServiceCode>3101</AdditionalService.ServiceCode>
+            <AdditionalService.Specifier name="amount">150</AdditionalService.Specifier>
+            <AdditionalService.Specifier name="account">FI2180000012345678</AdditionalService.Specifier>
+            <AdditionalService.Specifier name="codbic">DABAFIHH</AdditionalService.Specifier>
+            <AdditionalService.Specifier name="reference">12344</AdditionalService.Specifier>
+         </Consignment.AdditionalService>
+         <Consignment.Parcel type="normal">
+            <Parcel.Reference/>
+            <Parcel.Reference>123456</Parcel.Reference>
+            <Parcel.Packagetype>PC</Parcel.Packagetype>
+            <Parcel.Weight unit="kg">1.2</Parcel.Weight>
+            <Parcel.Volume unit="m3">0.6</Parcel.Volume>
+            <Parcel.Infocode>1012</Parcel.Infocode>
+            <Parcel.Contents>Test products</Parcel.Contents>
+            <Parcel.ReturnService>123</Parcel.ReturnService>
+            <Parcel.contentline>
+               <contentline.description>Puita</contentline.description>
+               <contentline.quantity>1</contentline.quantity>
+               <contentline.currency>EUR</contentline.currency>
+               <contentline.netweight>1</contentline.netweight>
+               <contentline.value>100</contentline.value>
+               <contentline.countryoforigin>FI</contentline.countryoforigin>
+               <contentline.tariffcode>9608101000</contentline.tariffcode>
+            </Parcel.contentline>
+         </Consignment.Parcel>
+         <Consignment.Parcel type="normal">
+            <Parcel.Reference/>
+            <Parcel.Reference>123457</Parcel.Reference>
+            <Parcel.Packagetype>PC</Parcel.Packagetype>
+            <Parcel.Weight unit="kg">1.2</Parcel.Weight>
+            <Parcel.Volume unit="m3">0.6</Parcel.Volume>
+            <Parcel.Infocode>1012</Parcel.Infocode>
+            <Parcel.Contents>Muttereita ja puita</Parcel.Contents>
+            <Parcel.ReturnService>123</Parcel.ReturnService>
+         </Consignment.Parcel>
+      </Shipment.Consignment>
+   </Shipment>
+</eChannel>

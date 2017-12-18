@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eChannel>
+    <ROUTING>
+        <Routing.Target>1</Routing.Target><!-- Ignored -->
+        <Routing.Source>505</Routing.Source><!-- Ignored -->
+        <Routing.Account>00000000-0000-0000-0000-000000000000</Routing.Account>
+        <Routing.Key>1234567890ABCDEF</Routing.Key>
+        <Routing.Id>1479032410</Routing.Id>
+        <Routing.Name>Testisanoma</Routing.Name>
+        <Routing.Time>20161113122010</Routing.Time>
+        <Routing.Version>1</Routing.Version><!-- Ignored -->
+        <Routing.Mode>0</Routing.Mode><!-- Ignored -->
+        <Routing.Comment>Comment</Routing.Comment><!-- Ignored -->
+    </ROUTING>
+    <Shipment>
+        <Shipment.Sender>
+            <Sender.Contractid>123456</Sender.Contractid><!-- Ignored -->
+            <Sender.Name1>Nuts and bolts Ltd</Sender.Name1>
+            <Sender.Name2></Sender.Name2>
+            <Sender.Addr1>Somestreet 123</Sender.Addr1>
+            <Sender.Addr2></Sender.Addr2>
+            <Sender.Addr3></Sender.Addr3>
+            <Sender.Postcode>04320</Sender.Postcode>
+            <Sender.City>Tuusula</Sender.City>
+            <Sender.Country>FI</Sender.Country>
+            <Sender.Phone></Sender.Phone>
+            <Sender.Vatcode></Sender.Vatcode>
+        </Shipment.Sender>
+        <Shipment.Recipient>
+            <Recipient.Code></Recipient.Code><!-- Ignored -->
+            <Recipient.Name1>John Doe</Recipient.Name1>
+            <Recipient.Name2></Recipient.Name2>
+            <Recipient.Addr1>Doe street 123 A 123</Recipient.Addr1>
+            <Recipient.Addr2></Recipient.Addr2>
+            <Recipient.Addr3></Recipient.Addr3>
+            <Recipient.Postcode>33100</Recipient.Postcode>
+            <Recipient.City>Tampere</Recipient.City>
+            <Recipient.Country>FI</Recipient.Country>
+            <Recipient.Phone>123123123</Recipient.Phone>
+            <Recipient.Vatcode></Recipient.Vatcode>
+            <Recipient.Email>john@doe.com</Recipient.Email>
+        </Shipment.Recipient>
+        <Shipment.Consignment>
+            <Consignment.Reference>3211479032410</Consignment.Reference>
+            <Consignment.Product>90010</Consignment.Product>
+            <Consignment.Contentcode>D</Consignment.Contentcode>
+            <Consignment.ReturnInstruction>E</Consignment.ReturnInstruction><!-- Palautusohjekoodi KV-lähetyksillä -->
+            <Consignment.Invoicenumber/>
+            <Consignment.Merchandisevalue>100</Consignment.Merchandisevalue>
+            <Consignment.AdditionalService><!-- Cash on delivery, Postiennakko/Bussiennakko -->
+                <AdditionalService.ServiceCode>3101</AdditionalService.ServiceCode>
+                <AdditionalService.Specifier name="amount">150</AdditionalService.Specifier>
+                <AdditionalService.Specifier name="account">FI2180000012345678</AdditionalService.Specifier>
+                <AdditionalService.Specifier name="codbic">DABAFIHH</AdditionalService.Specifier>
+                <AdditionalService.Specifier name="reference">12344</AdditionalService.Specifier>
+            </Consignment.AdditionalService>
+            <Consignment.AdditionalService>
+                <AdditionalService.ServiceCode>2106</AdditionalService.ServiceCode>
+                <AdditionalService.Specifier name="pickup_point_id">5410</AdditionalService.Specifier>
+            </Consignment.AdditionalService>
+            <Consignment.Currency>EUR</Consignment.Currency>
+            <Consignment.AdditionalInfo>
+                <AdditionalInfo.Text>Puita ja muttereita</AdditionalInfo.Text>
+            </Consignment.AdditionalInfo>
+            <Consignment.Parcel type="normal">
+                <Parcel.Reference>123456</Parcel.Reference>
+                <Parcel.Packagetype>PC</Parcel.Packagetype>
+                <Parcel.Weight unit="kg">1</Parcel.Weight>
+                <Parcel.Volume unit="m3">0.03</Parcel.Volume>
+                <Parcel.Infocode>1012</Parcel.Infocode>
+                <Parcel.Contents>Puita ja muttereita</Parcel.Contents>
+                <Parcel.ReturnService>123</Parcel.ReturnService>
+                <Parcel.contentline><!-- Customs declaration info -->
+                    <contentline.description>Puita</contentline.description>
+                    <contentline.quantity>1</contentline.quantity><!-- Kpl - määrä, oletuksena 1 kpl -->
+                    <contentline.currency>EUR</contentline.currency><!-- Valuutta, oletuksena EUR -->
+                    <contentline.netweight>1</contentline.netweight><!-- Sisältöerittelyrivin paino grammoissa(g) -->
+                    <contentline.value>100</contentline.value><!-- Sisältöerittelyrivin arvo -->
+                    <contentline.countryoforigin>FI</contentline.countryoforigin><!-- Sisällön alkuperämaa, oletuksena FI -->
+                    <contentline.tariffcode>9608101000</contentline.tariffcode><!-- Tullinimike -->
+                </Parcel.contentline>
+            </Consignment.Parcel>
+            <Consignment.Parcel type="normal">
+                <Parcel.Reference>1234567</Parcel.Reference>
+                <Parcel.Packagetype>PC</Parcel.Packagetype>
+                <Parcel.Weight unit="kg">2</Parcel.Weight>
+                <Parcel.Volume unit="m3">0.04</Parcel.Volume>
+                <Parcel.Infocode>1012</Parcel.Infocode>
+                <Parcel.Contents>Muttereita ja puita</Parcel.Contents>
+                <Parcel.ReturnService>123</Parcel.ReturnService>
+                <Parcel.contentline>
+                    <contentline.description>Muttereita</contentline.description>
+                    <contentline.quantity>1</contentline.quantity>
+                    <contentline.currency>EUR</contentline.currency>
+                    <contentline.netweight>1</contentline.netweight>
+                    <contentline.value>100</contentline.value>
+                    <contentline.countryoforigin>FI</contentline.countryoforigin>
+                    <contentline.tariffcode>9608101000</contentline.tariffcode>
+                </Parcel.contentline>
+            </Consignment.Parcel>
+        </Shipment.Consignment>
+    </Shipment>
+</eChannel>
