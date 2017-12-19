@@ -6,7 +6,7 @@ from datetime import datetime
 API_KEY = 'd4fb618f-1f44-4dc0-bdce-4993f4b91b77'
 SECRET = 'b5c95243276d3ff398207f8dea3013fef001e6e5f51fb9cb2252f609608a81'
 ROUTING_ID = '1464524676'
-ORDER_ALIAS = 'ORDER10001'
+ORDER_ALIAS = 'ORDER10002'
 
 
 def create_shipment_input_data(merchant_object):
@@ -172,6 +172,10 @@ if __name__ == '__main__':
     print("\n")
 
     # For displaying XML input data
-    #m.get_xml_shipment_req_data(**req_input)
+    # m.get_xml_shipment_req_data(**req_input)
 
-    m.create_shipment(**req_input)
+    dict_res = m.create_shipment(**req_input)
+    status = dict_res['status']
+    dict_tracking_code = dict_res['trackingcode']
+    tracking_url = dict_tracking_code['tracking_url']
+    tracking_code = dict_tracking_code['value']

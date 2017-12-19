@@ -17,13 +17,37 @@ from pakettikauppa_app.pakettikauppa import Pakettikauppa, PakettikauppaExceptio
 
 
 class PkReseller(Pakettikauppa):
+    """
+    Pakettikauppa reseller class is mean for reseller.
+
+    """
     _api_key = None
     _secret = None
     _isInTestMode = 1
 
+    _api_mapping = {
+        'create_customer': '/customer/create',
+        'update_customer': '/customer/update',
+        'list_customer': '/customer/list',
+        'deactivate_customer': '/customer/deactivate'
+    }
+
+    accept_payment_service_provider = ('CHECKOUT', 'CREDIT_CARD')
+
+    _accepted_keys = ('name', 'business_id', 'payment_service_provider', 'psp_merchant_id', 'marketing_name',
+                      'street_address', 'post_office', 'postcode', 'country', 'phone', 'email',
+                      'contact_person_name', 'contact_person_phone', 'contact_person_email',
+                      'customer_service_phone', 'customer_service_email'
+                      )
+    _all_accepted_keys_length = len(_accepted_keys)
+
     def __init__(self, is_test_mode=0, api_key=None, secret=None):
         """
-        Constructor for this class.
+        Constructor for Pakettikauppa reseller class. Initial API and secret key included logger.
+        :param is_test_mode: integer value to identify test mode. Zero is default value. If you set '1' to the \
+                             parameter, you may skip passing API key and secret key
+        :param api_key: API key string
+        :param secret: secret key string
         """
         self._isInTestMode = is_test_mode
 
@@ -32,44 +56,64 @@ class PkReseller(Pakettikauppa):
         self.mylogger = logging.getLogger(__name__)
 
         if self._isInTestMode == 1:
-            self._api_key = '11111111-1111-1111-1111-111111111111'
-            self._secret = 'FEDCBA0987654321'
+            if api_key is None or api_key == '':
+                self._api_key = '11111111-1111-1111-1111-111111111111'
+            else:
+                self._api_key = api_key
+
+            if secret is None or secret == '':
+                self._secret = 'FEDCBA0987654321'
+            else:
+                self._secret = secret
         else:
             if api_key is None or api_key == '':
-                raise PakettikauppaException("API key", "Missing API key")
+                raise PakettikauppaException("Missing API key")
             else:
                 self._api_key = api_key
             if secret is None or secret == '':
-                raise PakettikauppaException("Secret key", "Missing API secret key")
+                raise PakettikauppaException("Missing API secret key")
             else:
                 self._secret = secret
 
     @check_api_name
     def get_api_suffix(self, api_name=None):
-        __api_mapping = {
-            'create_customer': '/customer/create',
-            'update_customer': '/customer/update',
-            'list_customer': '/customer/list',
-            'deactivate_customer': '/customer/deactivate'
-        }
+        """
+        Get API suffix for given API name.
 
-        if api_name in __api_mapping:
-            retval = str(__api_mapping[api_name])
+        :param api_name: string of API name
+        :return api_suffix: string of API suffix
+        """
+        if api_name in self._api_mapping:
+            retval = str(self._api_mapping[api_name])
             self.mylogger.debug("Api suffix: {}".format(retval))
             return retval
         else:
-            raise PakettikauppaException(
-                KeyError,
-                "Invalid API name. Possible value are 'create_customer', 'update_customer', 'list_customer' \
-                and 'deactivate_customer'"
-            )
+            raise PakettikauppaException("Invalid API name. Possible value are 'create_customer', 'update_customer',\
+             'list_customer' and 'deactivate_customer'")
 
     def get_api_config(self, api_name=None):
+        """
+        Constructs API configuration
+
+        :param api_name: string of API name
+        :return dict_data: dictionary of configuration data
+
+        dict_data keys:
+            api_post_url (string): post URL address
+            api_key (string): API key
+            api_secret (string): secret key
+        """
         _api_suffix = self.get_api_suffix(api_name)
         _api_config = super().get_api_config(_api_suffix, self._api_key, self._secret)
         return _api_config
 
     def clean_up_phone_data(self, phone_string=None):
+        """
+        Remove none-digit data from phone number.
+
+        :param phone_string: string of phone number
+        :return:
+        """
         if phone_string is None or phone_string == '':
             return ''
         else:
@@ -77,10 +121,15 @@ class PkReseller(Pakettikauppa):
             # self.mylogger.debug("Original phone string={}".format(phone_string))
 
             formatted_string = re.sub('\D', '', phone_string)
-            # self.mylogger.debug("Formatted phone string={}".format(formatted_string))
+            self.mylogger.debug("[clean_up_phone_data] Formatted phone={}".format(formatted_string))
             return formatted_string
 
     def get_customer_list(self):
+        """
+        Get list of customer for your account.
+
+        :return list_data: list of response data
+        """
         _api_config = self.get_api_config('list_customer')
 
         input_req_data = {
@@ -94,37 +143,89 @@ class PkReseller(Pakettikauppa):
         self.mylogger.debug("Hash input data={}".format(input_req_data))
 
         res_obj = super().send_request('POST', _api_config['api_post_url'], input_req_data)
-        return self.return_data(res_obj)
+        return self.parse_res_to_list(res_obj)
 
     def create_customer(self, **kwargs):
+        """
+        Create customer in Pakettikauppa's system.
+
+        :param kwargs: See get_create_customer_req_data() function
+        :return list_data: list of response data
+        """
         h_config = self.get_api_config('create_customer')
 
         _hInputData = self.get_create_customer_req_data(**kwargs)
 
         res_obj = super().send_request('POST', h_config['api_post_url'], _hInputData)
-        #print("Response " + str(res_obj.json()))
-        #return
-        return self.return_data(res_obj)
+
+        return self.parse_res_to_list(res_obj)
 
     def get_create_customer_req_data(self, **kwargs):
+        """
+        Construct request data for create customer API.
+
+        :param kwargs:
+        Kwargs:
+            name: customer name
+            business_id: VAT ID
+            payment_service_provider: possible values are 'CHECKOUT' and 'CREDIT_CARD', can be empty string
+            psp_merchant_id: Required if payment_service_provider is CHECKOUT. Value is merchant id in the \
+                             Checkout service.
+            marketing_name: optional field
+            street_address: street address
+            post_office: city name
+            postcode: postal code
+            country: country name
+            phone: phone number
+            email: email address
+            contact_person_name: contact person name
+            contact_person_phone: contact person phone number
+            contact_person_email: contact person email address
+            customer_service_phone: customer service phone number
+            customer_service_email: customer service email address
+
+        :return dict_data: dictionary of request data
+        """
         if kwargs is None:
             raise PakettikauppaException("Require input parameters")
-        if len(kwargs) == 0:
-            raise Exception(KeyError("Require input parameters"))
+
+        key_length = len(kwargs)
+        self.logger.debug("Kwargs length={}".format(key_length))
+
+        if key_length == 0:
+            raise KeyError("Require input parameters")
 
         _mandatory_keys = ('name', 'business_id', 'street_address', 'post_office', 'postcode', 'country', 'phone',
                            'email', 'contact_person_name', 'contact_person_phone', 'contact_person_email')
+        mandatory_key_length = len(_mandatory_keys)
+
+        self.logger.debug("Mandatory key length={}".format(mandatory_key_length))
+        if key_length != self._all_accepted_keys_length:
+            raise KeyError("Too short parameter")
 
         for key in kwargs:
-            if key not in _mandatory_keys:
-                raise Exception(KeyError("Invalid key"))
+            if key not in self._accepted_keys:
+                raise KeyError("Invalid key")
+            else:
+                if key in _mandatory_keys:
+                    if kwargs[key] is None or kwargs[key] == '':
+                        raise ValueError("Mandatory field data is missing")
+
+        payment_service_provider = kwargs['payment_service_provider']
+        checkout_account_id = kwargs['psp_merchant_id']
+        if payment_service_provider is not None and payment_service_provider != '':
+            if payment_service_provider not in self.accept_payment_service_provider:
+                raise ValueError("Invalid payment service provider option")
+            else:
+                if checkout_account_id is None or checkout_account_id == '':
+                    raise ValueError("Require checkout account id")
 
         _hInputData = {
             'api_key': self._api_key,
             'name': kwargs['name'],
             'business_id': kwargs['business_id'],
-            'payment_service_provider': kwargs['payment_service_provider'],
-            'psp_merchant_id': kwargs['psp_merchant_id'],
+            'payment_service_provider': payment_service_provider,
+            'psp_merchant_id': checkout_account_id,
             'marketing_name': kwargs['marketing_name'],
             'street_address': kwargs['street_address'],
             'post_office': kwargs['post_office'],
@@ -146,10 +247,26 @@ class PkReseller(Pakettikauppa):
 
         return _hInputData
 
-    def update_customer(self, customer_id, **kwargs):
+    def update_customer(self, customer_id=None, **kwargs):
+        """
+        Update customer details in Pakettikauppa's system.
+
+        :param customer_id: Pakettikauppa's customer id
+        :param kwargs: attributes that you wish to update. See possible keys from get_create_customer_req_data()
+        :return:
+        """
+        if customer_id is None:
+            raise PakettikauppaException("Customer id is empty")
+
         customer_id = str(customer_id)
         if customer_id == '':
-            raise PakettikauppaException(ValueError, "Customer id is empty")
+            raise PakettikauppaException("Customer id is empty")
+
+        length_arguments = len(kwargs)
+        self.mylogger.debug("Length of input params={}".format(length_arguments))
+
+        if kwargs is None or len(kwargs) == 0:
+            return
 
         self.mylogger.debug("Updating customer id={}".format(customer_id))
 
@@ -162,35 +279,29 @@ class PkReseller(Pakettikauppa):
             return None
         else:
             res_obj = super().send_request('POST', _api_config['api_post_url'], update_req_data)
-            return self.return_data(res_obj)
+            return self.parse_res_to_list(res_obj)
 
     def get_update_customer_req_data(self, customer_id, **kwargs):
-        _accepted_keys = {'name', 'business_id', 'payment_service_provider', 'psp_merchant_id', 'marketing_name',
-                          'street_address', 'post_office', 'postcode', 'country', 'phone', 'email',
-                          'contact_person_name', 'contact_person_phone', 'contact_person_email',
-                          'customer_service_phone', 'customer_service_email'
-                          }
+        """
+        Construct request data for updating customer details.
 
-        length_arguments = len(kwargs)
-        self.mylogger.debug("Length of input params={}".format(length_arguments))
-
-        if length_arguments == 0:
-            return None
-
+        :param customer_id: Pakettikauppa's customer id
+        :param kwargs: attributes that you wish to update. See possible keys from get_create_customer_req_data()
+        :return dict_data: dictionary of request data
+        """
         update_req_data = {
             'api_key': self._api_key,
             'customer_id': customer_id,
         }
 
         for key in kwargs:
-            if key in _accepted_keys:
+            if key in self._accepted_keys:
                 item_value = kwargs[key]
                 if item_value is not None and item_value != '':
                     update_req_data[key] = item_value
                 else:
                     continue
             else:
-                #raise PakettikauppaException(KeyError)
                 raise PakettikauppaException("Invalid input key parameter")
 
         # Calculate MAC
@@ -201,7 +312,19 @@ class PkReseller(Pakettikauppa):
         return update_req_data
 
     def deactivate_customer(self, customer_id):
+        """
+        De-activate customer account in Pakettikauppa's system.
+
+        :param customer_id: Pakettikauppa's customer id
+        :return list_data: list of response data
+        """
+        if customer_id is None:
+            raise ValueError("Require customer id")
+
         customer_id = str(customer_id)
+        if customer_id == '':
+            raise ValueError("Require customer id")
+
         self.mylogger.debug("De-activating customer id={}".format(customer_id))
 
         _api_config = self.get_api_config('deactivate_customer')
@@ -218,4 +341,4 @@ class PkReseller(Pakettikauppa):
         self.mylogger.debug("Hash de-activate input data={}".format(input_req_data))
 
         res_obj = super().send_request('POST', _api_config['api_post_url'], input_req_data)
-        return self.return_data(res_obj)
+        return self.parse_res_to_list(res_obj)

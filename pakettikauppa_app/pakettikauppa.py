@@ -20,7 +20,6 @@ def check_api_name(function):
         if param is None or param == '':
             raise PakettikauppaException("API name", "Missing API name")
 
-        #print("API name variable type " + str(type(param).__name__))
         self.logger.debug("API name variable type={}".format(type(param).__name__))
         if str(type(param).__name__) != 'str':
             raise PakettikauppaException(param, "Invalid parameter type")
@@ -36,12 +35,18 @@ class PakettikauppaException(Exception):
 
 
 class Pakettikauppa:
+    """
+    Base class for Pakettikauppa integration.
+
+    """
     _base_api_end_point = None
     logger = None
 
     def __init__(self, is_test_mode=0):
         """
-        Constructor for this class.
+        Constructor for Pakettikauppa class. Initial base API end point and logger object
+
+        :param is_test_mode: integer value to identify test mode
         """
         logging.basicConfig(
             #    filename="pakettikauppa.log",
@@ -54,17 +59,40 @@ class Pakettikauppa:
             Pakettikauppa._base_api_end_point = 'https://apitest.pakettikauppa.fi'
         else:
             Pakettikauppa._base_api_end_point = 'https://api.pakettikauppa.fi'
-        #if self.isinstance(PkMerchant):
 
     def set_logger(self):
+        """
+        Set logger object.
+
+        :return:
+        """
         self.logger = logging.getLogger(__name__)
 
     def get_logger(self):
+        """
+        Get logger object.
+
+        :return:
+        """
         return self.logger
 
     def get_api_config(self, api_suffix=None, api_key=None, secret_key=None):
+        """
+        Get API configuration data.
+
+        :param api_suffix: string of API suffix
+        :param api_key: API key string
+        :param secret_key: secret key string
+
+        :return api_config: dictionary of API configuration
+        api_config: contains following keys
+             api_post_url (string): Post URL
+             api_key (string): API key
+             api_secret (string) : API secret
+        """
         if api_suffix is None:
             raise PakettikauppaException("API suffix", "Missing API suffix")
+
         _api_post_url = Pakettikauppa._base_api_end_point + api_suffix
         _api_config = {
             'api_post_url' : _api_post_url,
@@ -73,7 +101,25 @@ class Pakettikauppa:
         }
         return _api_config
 
+    def get_api_end_point(self):
+        """
+        Get API base end point string
+        
+        :return base_end_point: API base end point string 
+        """
+        return self._base_api_end_point
+    
     def get_hash_sha256(self, secret_key, **kwargs):
+        """
+        Calculate SHA256 digest string.
+
+        :param secret_key: string of secret key
+        :param kwargs: dictionary of parameters for caluclation
+        :return digest_string: digest string
+        """
+        if kwargs is None or len(kwargs) == 0:
+            raise Exception(KeyError("Expect input parameters"))
+
         secret_key = str(secret_key)
         self.logger.debug("Secret key: {}".format(secret_key))
 
@@ -87,27 +133,53 @@ class Pakettikauppa:
         message_bytes = bytes(plain_text, 'utf-8')
         secret_bytes = bytes(secret_key, 'utf-8')
 
-        hash = hmac.new(secret_bytes, message_bytes, hashlib.sha256)
+        hash_string = hmac.new(secret_bytes, message_bytes, hashlib.sha256)
 
         # to lowercase hexits
-        digest_string = hash.hexdigest()
+        digest_string = hash_string.hexdigest()
         self.logger.debug("Digest string={}".format(digest_string))
         return str(digest_string)
 
-    def get_md5_hash(self, api_key, secret_key, routing_id):
+    def get_md5_hash(self, api_key=None, secret_key=None, routing_id=None):
+        """
+        Calculate MD5 digest string.
+        
+        :param api_key: string of API key
+        :param secret_key: string of secret key
+        :param routing_id: string of routing id 
+        :return digest_string: digest string
+        """
+        if api_key is None or api_key == '':
+            raise Exception(ValueError("Need API key parameter"))
+        
+        if secret_key is None or secret_key == '':
+            raise Exception(ValueError("Need Secret key parameter"))
+        
+        if routing_id is None or routing_id == '':
+            raise Exception(ValueError("Need routing id parameter"))
+        
         routing_key_data = str(api_key) + str(routing_id) + str(secret_key)
         self.logger.debug("Routing key data={}".format(routing_key_data))
         digest_string = hashlib.md5(routing_key_data.encode('utf-8')).hexdigest()
         self.logger.debug("MD5 Digest string={}".format(digest_string))
         return digest_string
 
-    def get_api_end_point(self):
-        return self._base_api_end_point
-
     def send_request(self, send_method='POST', _api_post_url=None, req_input=None, **headers):
+        """
+        Send a request to Pakettikauppa.
+        
+        :param send_method: type of request method. Possible value are 'POST' and 'GET', 'POST' is default value.
+        :param _api_post_url: string of post URL
+        :param req_input: request input data
+        :param headers: dictionary of header data
+        :return res_obj: response object 
+        """
+        if _api_post_url is None or _api_post_url == '':
+            raise Exception(ValueError("Need post URL data"))
+        
         if headers is None:
             headers = {
-                #'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+                # 'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
                 'Content-Encoding': 'utf-8'
             }
 
@@ -126,13 +198,24 @@ class Pakettikauppa:
         # self.logger.debug("Request headers={}".format(res_obj.request.headers))
 
         # Response data object is in 'res_obj' variable
-        self.logger.debug("Response status code={}".format(res_obj.status_code))
+        res_status_code = res_obj.status_code
+        self.logger.debug("Response status code={}".format(res_status_code))
         # self.logger.debug("Response content={}".format(res_obj.content))
-        # self.logger.debug("Response text={}".format(res_obj.text))
+
+        if res_status_code != 200:
+            error_text = res_obj.text
+            self.logger.error("Unexpected response text={}".format(error_text))
+            raise PakettikauppaException(error_text)
 
         return res_obj
 
-    def get_res_json_data(self, res_obj):
+    def parse_res_json_data(self, res_obj):
+        """
+        Parse response JSON data (Not yet completely implemented)
+        
+        :param res_obj: response object 
+        :return: 
+        """
         list_data = res_obj.json()
         self.logger.debug("Response JSON data={}".format(list_data))
 
@@ -141,7 +224,13 @@ class Pakettikauppa:
             self.logger.debug("item={}".format(item))
             self.logger.debug("\n")
 
-    def return_data(self, res_obj=None):
+    def parse_res_to_list(self, res_obj=None):
+        """
+        Parse response object to list data.
+
+        :param res_obj: response object
+        :return list_data: list data of response data from Pakettikauppa
+        """
         if res_obj is not None:
             try:
                 list_data = res_obj.json()

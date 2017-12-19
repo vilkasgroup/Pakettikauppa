@@ -21,6 +21,17 @@ from xml.etree import ElementTree as ET
 from pakettikauppa_app.pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 
+def decode_pdf_content(encoded_pdf_content):
+    decoded_pdf_content = b64decode(encoded_pdf_content)
+    return decoded_pdf_content
+
+
+def write_pdf_to_file(target_file_path, pdf_content):
+    with open(target_file_path, 'wb') as f:
+        f.write(pdf_content)
+    return 1
+
+
 class PkMerchant(Pakettikauppa):
     _api_key = None
     _secret = None
@@ -62,7 +73,20 @@ class PkMerchant(Pakettikauppa):
     # 'M' = Kauppatavaraa (Merchandise)
     # 'S' = Näyte (Sample)
 
-    _accept_sender_keys = ()
+    _accept_sender_keys = ('Sender.Contractid', 'Sender.Name1', 'Sender.Name2', 'Sender.Addr1', 'Sender.Addr2',
+                           'Sender.Addr3', 'Sender.Postcode', 'Sender.City', 'Sender.Country', 'Sender.Phone',
+                           'Sender.Vatcode', 'Sender.Email')
+
+    _accept_recipient_keys = ('Recipient.Code', 'Recipient.Name1', 'Recipient.Name2', 'Recipient.Addr1',
+                              'Recipient.Addr2', 'Recipient.Addr3', 'Recipient.Postcode', 'Recipient.City',
+                              'Recipient.Country', 'Recipient.Phone', 'Recipient.Vatcode', 'Recipient.Email')
+
+    _accept_parcel_keys = ('Parcel.Reference', 'Parcel.Packagetype', 'Parcel.Weight', 'Parcel.Volume',
+                           'Parcel.Infocode', 'Parcel.Contents', 'Parcel.ReturnService', 'Parcel.contentline',
+                           'Parcel.ParcelService')
+
+    _accept_content_line_keys = ('contentline.description', 'contentline.quantity', 'contentline.currency',
+                                 'contentline.netweight')
 
     def __init__(self, is_test_mode=0, api_key=None, secret=None):
         """
@@ -145,7 +169,7 @@ class PkMerchant(Pakettikauppa):
 
         res_obj = super().send_request('POST', _api_config['api_post_url'], dict_req_data)
         # self.get_res_pickup_point_data(res_obj)
-        return self.return_data(res_obj)
+        return self.parse_res_to_list(res_obj)
 
     def get_res_pickup_point_data(self, res_obj):
         """
@@ -249,7 +273,7 @@ class PkMerchant(Pakettikauppa):
 
         res_obj = super().send_request('POST', _api_config['api_post_url'], dict_req_data)
 
-        return self.return_data(res_obj)
+        return self.parse_res_to_list(res_obj)
 
     def get_additional_service_list(self, language_code2='EN'):
         """
@@ -274,10 +298,11 @@ class PkMerchant(Pakettikauppa):
 
         res_obj = super().send_request('POST', _api_config['api_post_url'], dict_req_data)
 
-        return self.return_data(res_obj)
+        return self.parse_res_to_list(res_obj)
 
     def create_shipment(self, **kwargs):
         """
+        Main function to send a request to Pakettikauppa to create shipment.
 
         :param kwargs: See get_xml_shipment_req_data() function
         :return dict_data: See parse_xml_create_shipment_res() function
@@ -285,7 +310,7 @@ class PkMerchant(Pakettikauppa):
         # This API send request data in XML format
         _api_config = self.get_api_config('create_shipment')
 
-        xml_req_data = None
+        # xml_req_data = None
         if self._isInTestMode:
             if kwargs is not None:
                 xml_req_data = self.get_xml_shipment_req_data(**kwargs)
@@ -313,7 +338,7 @@ class PkMerchant(Pakettikauppa):
 
         dict_data contains following keys:
             status (integer): 1 = status OK
-            message (string): response message from Shipfunk
+            message (string): response message from Pakettikauppa
             reference (dictionary): contains two keys: 'uuid' and 'value'
             trackingcode (dictionary): contains two keys: 'tracking_url' and 'value' (tracking code)
         """
@@ -350,14 +375,29 @@ class PkMerchant(Pakettikauppa):
 
     def get_routing_key(self, routing_id):
         """
+        Calculate routing key.
 
-        :param routing_id:
-        :return:
+        :param routing_id: string of routing ID
+        :return digest_string: digest string of MD5 hash
         """
         digest_string = self.get_md5_hash(self._api_key, self._secret, routing_id)
         return digest_string
 
+    def get_create_shipment_test_req_data(self):
+        """
+        Generates test data set for create shipment request call.
+
+        :return dict_data: dictionary of request data
+        """
+        dict_data = self.get_create_shipment_test_data()
+        return self.get_xml_shipment_req_data(**dict_data)
+
     def get_create_shipment_test_data(self):
+        """
+        Main function to generate test data set for create shipment request call.
+
+        :return dict_data: dictionary of request data
+        """
         routing_id = '1464524676'
         order_alias = 'ORDER001'
 
@@ -507,10 +547,6 @@ class PkMerchant(Pakettikauppa):
 
         return dict_data
 
-    def get_create_shipment_test_req_data(self):
-        dict_data = self.get_create_shipment_test_data()
-        return self.get_xml_shipment_req_data(**dict_data)
-
     def get_xml_shipment_req_data(self, **kwargs):
         """
         Construct XML string of request data for create shipment API
@@ -523,7 +559,7 @@ class PkMerchant(Pakettikauppa):
 
                 Shipment:
 
-        :return:
+        :return xml_string: string of XML request data for create shipment API
         """
         root = ET.Element('eChannel')
 
@@ -587,12 +623,10 @@ class PkMerchant(Pakettikauppa):
         self.logger.debug("[_create_shipment_elements] Shipment.Consignment={}".format(kwargs['Shipment.Consignment']))
         self._create_shipment_consignment_element(shipment_root, **kwargs['Shipment.Consignment'])
 
-    @staticmethod
     def _create_shipment_address_element(self, root_element, address_type="recipient", **kwargs):
         """
         Append address element according to given address type
 
-        :param self:
         :param root_element: root element for appending
         :param address_type: possible values: 'recipient' and 'sender'. Default value is 'recipient'
         :param kwargs:
@@ -632,27 +666,63 @@ class PkMerchant(Pakettikauppa):
             raise ValueError("Invalid value. Possible value are 'recipient' and 'sender'.")
 
         if address_type == "recipient":
-            root = ET.SubElement(root_element, "Shipment.Recipient")
+            address_root_element = ET.SubElement(root_element, "Shipment.Recipient")
         else:
-            root = ET.SubElement(root_element, "Shipment.Sender")
+            address_root_element = ET.SubElement(root_element, "Shipment.Sender")
 
         for key in kwargs:
-            child = ET.SubElement(root, key)
+            if address_type == "recipient":
+                if key not in self._accept_recipient_keys:
+                    raise Exception(KeyError("Invalid key"))
+            else:
+                if key not in self._accept_sender_keys:
+                    raise Exception(KeyError("Invalid key"))
+
+            child = ET.SubElement(address_root_element, key)
             child.text = str(kwargs[key])
 
+        return
+
     def _create_shipment_consignment_element(self, root_element, **kwargs):
+        """
+        Constructs consignment elements
+
+        :param root_element: root xml element
+        :param kwargs:
+
+        Kwargs:
+            Consignment.Currency: consignment currency code i.e. 'EUR'
+            Consignment.Product: Posti's product code
+            Consignment.Reference: consignment reference string
+            Consignment.Invoicenumber: consignment invoice number string
+            Consignment.AdditionalInfo: See create_additional_info_element() function
+            Consignment.Contentcode: See _create_content_code_element() function
+            Consignment.ReturnInstruction: See _create_return_instruction_element() function
+            Consignment.Merchandisevalue: merchandise price value
+            Consignment.AdditionalService: See _create_additional_service_elements() function
+            Consignment.Parcel: See _create_one_consignment_parcel() function
+
+        :return:
+        """
+        if kwargs is None:
+            raise Exception(KeyError("Require parameters"))
+
+        if len(kwargs) == 0:
+            raise Exception(KeyError("Input parameter cann't be empty."))
+
         self.logger.debug("[_create_shipment_consignment_element] KWARGS={}".format(kwargs))
+
         root = ET.SubElement(root_element, "Shipment.Consignment")
 
-        self._create_currency_element(root, kwargs['Consignment.Currency'])
+        create_currency_element(root, kwargs['Consignment.Currency'])
 
-        self._create_product_element(root, kwargs['Consignment.Product'])
+        create_product_element(root, kwargs['Consignment.Product'])
 
-        self._create_reference_element(root, kwargs['Consignment.Reference'])
+        create_reference_element(root, kwargs['Consignment.Reference'])
 
         self._create_invoice_number_element(root, kwargs['Consignment.Invoicenumber'])
 
-        self._create_additional_info_element(root, **kwargs['Consignment.AdditionalInfo'])
+        create_additional_info_element(root, **kwargs['Consignment.AdditionalInfo'])
 
         self._create_content_code_element(root, kwargs['Consignment.Contentcode'])
 
@@ -662,7 +732,7 @@ class PkMerchant(Pakettikauppa):
         self._create_return_instruction_element(root, kwargs['Consignment.ReturnInstruction'])
 
         # this is for aboard shipment when custom need to know value of products in the shipment
-        self._create_merchandise_value_element(root, kwargs['Consignment.Merchandisevalue'])
+        create_merchandise_value_element(root, kwargs['Consignment.Merchandisevalue'])
 
         self._create_additional_service_elements(root, kwargs['Consignment.AdditionalService'])
 
@@ -679,97 +749,22 @@ class PkMerchant(Pakettikauppa):
         else:
             raise PakettikauppaException("Invalid argument type for 'Consignment.Parcel' key")
 
-    @staticmethod
-    def _create_currency_element(self, root, value=None):
-        if value is None:
-            value = 'EUR'
-        else:
-            value = value.upper()
-        currency_element = ET.SubElement(root, "Consignment.Currency")
-        currency_element.text = str(value)
-
-    def _create_invoice_number_element(self, root, value=None):
-        self.logger.debug("Invoice number value={}".format(value))
-        if value is None:
-            value = ''
-        invoice_number_element = ET.SubElement(root, "Consignment.Invoicenumber")
-        invoice_number_element.text = str(value)
-
-    @staticmethod
-    def _create_reference_element(self, root, value=None):
-        if value is None:
-            value = ''
-        reference_element = ET.SubElement(root, "Consignment.Reference")
-        reference_element.text = str(value)
-
-    @staticmethod
-    def _create_product_element(self, root, product_code):
-        if product_code is None or product_code == '':
-            raise PakettikauppaException("Require product code in 'Consignment.Product'")
-
-        product_element = ET.SubElement(root, "Consignment.Product")
-        product_element.text = str(product_code)
-
-    @staticmethod
-    def _create_additional_info_element(self, root, **dict_data):
-        if dict_data is None:
-            return
-        if len(dict_data) == 0:
-            return
-
-        text_value = dict_data['AdditionalInfo.Text']
-        if text_value is None:
-            return
-        if type(text_value).__name__ != 'str':
-            raise PakettikauppaException("Expect string value in 'AdditionalInfo.Text' parameter")
-
-        additional_info_root_element = ET.SubElement(root, "Consignment.AdditionalInfo")
-        additional_info_element = ET.SubElement(additional_info_root_element, "AdditionalInfo.Text")
-        additional_info_element.text = str(text_value)
-
-    def _create_content_code_element(self, root, value):
-        if value is None or value == '':
-            raise PakettikauppaException("Require Consignment.Contentcode value")
-        else:
-            value = str(value)
-            self._validate_content_code_value(value)
-        content_element = ET.SubElement(root, "Consignment.Contentcode")
-        content_element.text = value
-
-    def _validate_content_code_value(self, code):
-        if code not in self._content_codes:
-            raise PakettikauppaException("Invalid content code. Possible values:'D', 'E', 'G', 'M' and 'S'")
-
-    @staticmethod
-    def _create_merchandise_value_element(self, root, value=None):
-        merchandise_value_element = ET.SubElement(root, "Consignment.Merchandisevalue")
-        if value is None:
-            merchandise_value_element.text = ''
-        else:
-            merchandise_value_element.text = str(value)
-
-    def _create_return_instruction_element(self, root, value=''):
-        if value != '':
-            self._validate_return_instruction_code(value)
-
-        return_instruction_element = ET.SubElement(root, "Consignment.ReturnInstruction")
-        return_instruction_element.text = str(value)
-
-    def _validate_return_instruction_code(self, code):
-        if code not in self._return_instruction_codes:
-            raise PakettikauppaException("Invalid return instruction code. Possible value are 'E', 'H' and 'L'")
-
-    def _create_one_consignment_parcel(self, root, **kwargs):
-        if kwargs is None:
-            return
-        if len(kwargs) == 0:
-            return
-
-        parcel_root_element = ET.SubElement(root, "Consignment.Parcel")
-        parcel_root_element.set("type", "normal")
-        self._create_parcel_elements(parcel_root_element, **kwargs)
-
     def _create_additional_service_elements(self, root, list_services):
+        """
+        Append 'Consignment.AdditionalService' element and its children element to given root object.
+
+        :param root: root XML element object
+        :param list_services: list data of dictionary of additional services
+        :return:
+        """
+        if list_services is None:
+            return
+        if len(list_services) == 0:
+            return
+
+        if type(list_services).__name__ != 'list':
+            raise Exception(ValueError("Expected data type list"))
+
         for dict_data in list_services:
             additional_service_root_element = ET.SubElement(root, "Consignment.AdditionalService")
             self.mylogger.debug("Inner Hash= {}".format(dict_data))
@@ -799,6 +794,14 @@ class PkMerchant(Pakettikauppa):
                         child.text = str(dict_data[key])
 
     def _create_one_service_specifier(self, additional_service_root_element, dict_data):
+        """
+        Append 'AdditionalService.Specifier' element to additional service root element.
+
+        :param additional_service_root_element: additional service root element object
+        :param dict_data: dictionary with 'name' and 'value' key. 'name' is for attribute in XML element. 'value' is\
+                          for content of XML element.
+        :return:
+        """
         self.mylogger.debug("[_create_one_service_specifier] dict_data={}".format(dict_data))
 
         if dict_data is None:
@@ -813,16 +816,117 @@ class PkMerchant(Pakettikauppa):
             else:
                 child.set(key, str(dict_data[key]))
 
+    def _create_invoice_number_element(self, root, value=None):
+        """
+        Create 'Consignment.Invoicenumber' element under given root object.
+
+        :param root: root XML element object
+        :param value: string of invoice number
+        :return:
+        """
+        self.logger.debug("Invoice number value={}".format(value))
+        if value is None:
+            value = ''
+        invoice_number_element = ET.SubElement(root, "Consignment.Invoicenumber")
+        invoice_number_element.text = str(value)
+
+    def _create_content_code_element(self, root, value):
+        """
+        Append 'Consignment.Contentcode' element to given root object.
+
+        :param root: root XML element object
+        :param value: string of content code
+        :return:
+        """
+        if value is None or value == '':
+            raise PakettikauppaException("Require Consignment.Contentcode value")
+        else:
+            value = str(value)
+            self._validate_content_code_value(value)
+
+        content_element = ET.SubElement(root, "Consignment.Contentcode")
+        content_element.text = value
+
+    def _validate_content_code_value(self, code):
+        """
+        Validate given content code and raise error if the value is invalid.
+
+        :param code: 1 letter of content code. Possible values:'D', 'E', 'G', 'M' and 'S'
+        :return:
+        """
+        if code not in self._content_codes:
+            raise PakettikauppaException("Invalid content code. Possible values:'D', 'E', 'G', 'M' and 'S'")
+
+    def _create_return_instruction_element(self, root, value=''):
+        """
+        Append 'Consignment.ReturnInstruction' element to given root object
+        :param root: root XML element object
+        :param value: a letter of return instruction code. Possible value are 'E', 'H' and 'L'
+        :return:
+        """
+        if value != '':
+            self._validate_return_instruction_code(value)
+
+        return_instruction_element = ET.SubElement(root, "Consignment.ReturnInstruction")
+        return_instruction_element.text = str(value)
+
+    def _validate_return_instruction_code(self, code):
+        """
+        Validate given return instruction code. Raise exception if given code is invalid.
+
+        :param code: a letter of return instruction code. Possible value are 'E', 'H' and 'L'
+        :return:
+        """
+        if code not in self._return_instruction_codes:
+            raise PakettikauppaException("Invalid return instruction code. Possible value are 'E', 'H' and 'L'")
+
+    def _create_one_consignment_parcel(self, root, **kwargs):
+        """
+        Append 'Consignment.Parcel' element and its children element to given root object
+
+        :param root: root XML element object
+        :param kwargs: See _create_parcel_elements() function
+        :return:
+        """
+        if kwargs is None:
+            return
+        if len(kwargs) == 0:
+            return
+
+        parcel_root_element = ET.SubElement(root, "Consignment.Parcel")
+        parcel_root_element.set("type", "normal")
+        self._create_parcel_elements(parcel_root_element, **kwargs)
+
     def _create_parcel_elements(self, parcel_root_element, **kwargs):
+        """
+        Append child elements to 'Consignment.Parcel' element.
+
+        :param parcel_root_element: parcel root element object.
+        :param kwargs:
+        Kwargs:
+            Parcel.contentline: See _create_content_line_elements() function
+            Parcel.ParcelService: See _create_parcel_service_elements() function
+            Parcel.Weight: dictionary of weight data with 'weight_unit' and 'value' key.
+            Parcel.Volume: dictionary of volume data with 'unit' and 'value' key
+            Parcel.Reference: parcel reference
+            Parcel.Packagetype: code of package type. See _validate_package_type() for code details.
+            Parcel.Infocode:
+            Parcel.Contents: product description
+            Parcel.ReturnService:
+        :return:
+        """
         parcel_reference_element = ET.SubElement(parcel_root_element, "Parcel.Reference")
         parcel_reference_element.text = None
 
         # self.mylogger.debug("Hash input for creating Parcel elements={}".format(kwargs))
         for key in kwargs:
+            if key not in self._accept_parcel_keys:
+                raise Exception(KeyError("Invalid key parameter"))
+
             if key == 'Parcel.contentline':
                 self._create_content_line_elements(parcel_root_element, **kwargs[key])
             elif key == 'Parcel.ParcelService':
-                self._create_parcel_service_elements(parcel_root_element, kwargs[key])
+                _create_parcel_service_elements(parcel_root_element, kwargs[key])
             elif key == 'Parcel.Weight':
                 if kwargs[key]['weight_unit'] is None or kwargs[key]['weight_unit'] == '':
                     raise PakettikauppaException("Expect value in weight_unit parameter")
@@ -844,7 +948,7 @@ class PkMerchant(Pakettikauppa):
                 child.text = str(kwargs[key]['value'])
             else:
                 # expected string value from kwargs[key]
-                #self.mylogger.debug("Key for creating Parcel elements={}, Value={}".format(key, kwargs[key]))
+                # self.mylogger.debug("Key for creating Parcel elements={}, Value={}".format(key, kwargs[key]))
                 if type(kwargs[key]).__name__ != 'str':
                     raise PakettikauppaException("Invalid value in key={}".format(key))
 
@@ -857,6 +961,12 @@ class PkMerchant(Pakettikauppa):
                 child.text = str(kwargs[key])
 
     def _validate_package_type(self, code=None):
+        """
+        Validate package type code. Raise exception if code is invalid.
+
+        :param code: string of package type code
+        :return:
+        """
         if code not in self._package_types:
             raise PakettikauppaException("Invalid package type code")
 
@@ -873,22 +983,14 @@ class PkMerchant(Pakettikauppa):
             child = ET.SubElement(root, key)
             child.text = str(kwargs[key])
 
-    @staticmethod
-    def _create_parcel_service_elements(self, root, list_services):
-        if list_services is None:
-            return
-
-        if len(list_services) == 0:
-            return
-        else:
-            for dict_data in list_services:
-                parcel_service_root_element = ET.SubElement(root, "Parcel.ParcelService")
-                for key in dict_data:
-                    child = ET.SubElement(parcel_service_root_element, key)
-                    child.text = str(dict_data[key])
-
     # Not yet getting expected result in Test server
     def get_shipment_status(self, tracking_code):
+        """
+        Get shipment status from Pakettikauppa.
+
+        :param tracking_code: string of tracking code for checking
+        :return:
+        """
         _api_config = self.get_api_config('get_shipment_status')
         dict_req_data = self.get_shipment_status_req_data(tracking_code)
         res_obj = super().send_request('POST', _api_config['api_post_url'], dict_req_data)
@@ -896,11 +998,20 @@ class PkMerchant(Pakettikauppa):
         return
 
     def get_shipment_status_req_data(self, tracking_code):
+        """
+        Construct request data for get shipment status API.
+
+        :param tracking_code: string of tracking code
+        :return dict_data: dictionary of request data
+        """
+        if tracking_code is None or tracking_code == '':
+            raise Exception(KeyError("Require tracking code string"))
+
         dict_req_data = {
             'api_key': self._api_key,
             'tracking_code': str(tracking_code),
             'timestamp': str(int(time())),
-            #'timestamp': '1512575546',
+            # 'timestamp': '1512575546',
         }
 
         # Calculate MAC
@@ -910,16 +1021,20 @@ class PkMerchant(Pakettikauppa):
         return dict_req_data
 
     def get_shipping_label(self, **kwargs):
+        """
+        Get shipping labels from Pakettikauppa. This API send request data in XML format.
 
-        # This API send request data in XML format
+        :param kwargs: See get_xml_shipping_label_req_data() function
+        :return: See parse_xml_get_shipping_label_res() function
+        """
         _api_config = self.get_api_config('get_shipping_label')
 
-        xml_req_data = None
         if self._isInTestMode:
             if kwargs is not None:
                 xml_req_data = self.get_xml_shipping_label_req_data(**kwargs)
             else:
-                xml_req_data = self.get_shipping_label_req_test_data()
+                dict_data = self.get_shipping_label_req_test_data()
+                xml_req_data = self.get_xml_shipping_label_req_data(**dict_data)
         else:
             xml_req_data = self.get_xml_shipping_label_req_data(**kwargs)
 
@@ -936,6 +1051,21 @@ class PkMerchant(Pakettikauppa):
         return self.parse_xml_get_shipping_label_res(xml_res_string)
 
     def parse_xml_get_shipping_label_res(self, xml_string):
+        """
+        Construct dictionary from response data.
+
+        :param xml_string: XML string of response data
+        :return: dict_data: dictionary
+        dict_data: contains below keys
+            status (integer): 1 = operation OK
+            message (string): response message
+            PDFcontent (string): binary data of PDF content
+            ContentEncoded (boolean): True = PDFContent data is encoded
+        """
+        if xml_string is None or xml_string == '':
+            self.logger.error("No XML string pass to the function")
+            return None
+
         root = ET.fromstring(xml_string)
         status_element = root.find("response.status")
         status = str(status_element.text)
@@ -943,41 +1073,43 @@ class PkMerchant(Pakettikauppa):
         message_element = root.find("response.message")
 
         pdf_content_element = root.find("response.file")
-        encoded_pdf_content = pdf_content_element.text
-        #self.mylogger.debug("PDF content= {}".format(encoded_pdf_content))
+        if pdf_content_element is not None:
+            encoded_pdf_content = pdf_content_element.text
+            # self.mylogger.debug("PDF content= {}".format(encoded_pdf_content))
 
-        # Pakettikauppa return status=0 means OK
-        dict_data = None
-        if status == '0':
-            dict_data = {
-                'status': 1,
-                'message': message_element.text,
-                'PDFcontent': encoded_pdf_content,
-                'ContentEncoded': True,
-            }
+            # Pakettikauppa return status=0 means OK
+            if status == '0':
+                dict_data = {
+                    'status': 1,
+                    'message': message_element.text,
+                    'PDFcontent': encoded_pdf_content,
+                    'ContentEncoded': True,
+                }
+            else:
+                dict_data = {
+                    'status': 0,
+                    'message': message_element.text,
+                    'PDFcontent': encoded_pdf_content,
+                    'ContentEncoded': True,
+                }
+
+            self.mylogger.debug("Return dict data= {}".format(dict_data))
+            return dict_data
         else:
-            dict_data = {
+            self.logger.error("Unable to find PDF content from response")
+            return {
                 'status': 0,
-                'message': message_element.text,
-                'PDFcontent': encoded_pdf_content,
-                'ContentEncoded': True,
+                'message': 'Unable to find PDF content from response data',
+                'PDFcontent': None,
+                'ContentEncoded': False,
             }
-
-        self.mylogger.debug("Return dict data= {}".format(dict_data))
-        return dict_data
-
-    @staticmethod
-    def decode_pdf_content(self, encoded_pdf_content):
-        decoded_pdf_content = b64decode(encoded_pdf_content)
-        return decoded_pdf_content
-
-    @staticmethod
-    def write_pdf_to_file(self, target_file_path, pdf_content):
-        with open(target_file_path, 'wb') as f:
-            f.write(pdf_content)
-        return 1
 
     def get_shipping_label_req_test_data(self):
+        """
+        Generate test request data for getting shipping label.
+
+        :return dict_data: dictionary
+        """
         routing_id = '1479035179'
         order_alias = 'ORDER001'
 
@@ -1018,9 +1150,36 @@ class PkMerchant(Pakettikauppa):
                 }
             }
         }
+
         return dict_data
 
     def get_xml_shipping_label_req_data(self, **kwargs):
+        """
+        Construct XML string request data for getting shipping label
+        :param kwargs:
+        Kwargs:
+            eChannel: contains following keys:
+                ROUTING: dictionary of routing data
+                PrintLabel: dictionary of tracking codes
+        ROUTING:
+            Routing.Account: API key
+            Routing.Key: MD5 hash string
+            Routing.Id: could be order id or shop id or combination of both
+            Routing.Name: could be order alias or shop alias or combination of both
+            Routing.Time: string of current datetime with following format '%Y%m%d%H%M%S'
+        PrintLabel:
+            responseFormat: expected response data format. Possible values are "File" and "inline", "File" is default.
+            content: dictionary of tracking code with 'TrackingCode' as a key.
+        TrackingCode: could be dictionary with 'Code' key or list of dictionary of 'Code' key for asking multiple labels
+            Code: string of tracking code
+
+        :return xml_string:
+        """
+        if kwargs is None:
+            raise Exception(KeyError("Expect input parameters"))
+        if len(kwargs) == 0:
+            raise Exception(KeyError("Expect input parameters"))
+
         # self.logger.debug("[GetXmlShippingLabel] KWARGS={}".format(kwargs))
         root = ET.Element('eChannel')
 
@@ -1032,9 +1191,20 @@ class PkMerchant(Pakettikauppa):
         xml_string = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ", encoding="utf-8")
         # print(repr(xml_string))
         self.mylogger.debug("XML string = {}".format(xml_string))
+
         return xml_string
 
     def _create_print_label_element(self, root, **dict_data):
+        """
+        Append 'PrintLabel' element and its child elements to given root object.
+
+        :param root: root XML object
+        :param dict_data: dictionary of tracking codes
+        :return:
+        """
+        if dict_data is None or len(dict_data) == 0:
+            raise Exception(KeyError("Expect input parameters"))
+
         self.logger.debug("[CreatePrintLabelElement] Dict data={}".format(dict_data))
         print_label_element = ET.SubElement(root, "PrintLabel")
         for key in dict_data:
@@ -1045,6 +1215,13 @@ class PkMerchant(Pakettikauppa):
                 self._create_child_print_label_element(print_label_element, **child_dict)
 
     def _create_child_print_label_element(self, print_label_element, **child_dict):
+        """
+        Append child element to 'PrintLabel' element object.
+
+        :param print_label_element: print label root element object
+        :param child_dict: dictionary of tracking codes
+        :return:
+        """
         for key in child_dict:
             value_type = type(child_dict[key]).__name__
             if value_type == 'str':
@@ -1056,14 +1233,125 @@ class PkMerchant(Pakettikauppa):
                         self.logger.debug("Child dict:{}".format(child_dict[key]))
                         for dict_code in child_dict[key]:
                             self.logger.debug("dict_code={}".format(dict_code))
-                            self._create_one_tracking_code_element(print_label_element, dict_code['Code'])
+                            _create_one_tracking_code_element(print_label_element, dict_code['Code'])
                     else:
                         # Hash data type
-                        self._create_one_tracking_code_element(print_label_element, child_dict[key]['Code'])
+                        _create_one_tracking_code_element(print_label_element, child_dict[key]['Code'])
                 else:
                     raise PakettikauppaException("Unexpected key for creating child element of PrintLabel")
 
-    @staticmethod
-    def _create_one_tracking_code_element(self, root, tracking_code):
-        child = ET.SubElement(root, "TrackingCode")
-        child.text = str(tracking_code)
+
+def create_additional_info_element(root, **dict_data):
+    """
+    Append additional info element to given root object.
+    :param root: root XML object.
+    :param dict_data: dictionary of additional info text
+    :return:
+    """
+    if dict_data is None:
+        return None
+    if len(dict_data) == 0:
+        return None
+
+    text_value = dict_data['AdditionalInfo.Text']
+    if text_value is None:
+        return None
+    if type(text_value).__name__ != 'str':
+        raise PakettikauppaException("Expect string value in 'AdditionalInfo.Text' parameter")
+
+    additional_info_root_element = ET.SubElement(root, "Consignment.AdditionalInfo")
+    additional_info_element = ET.SubElement(additional_info_root_element, "AdditionalInfo.Text")
+    additional_info_element.text = str(text_value)
+
+
+def create_reference_element(root, value=None):
+    """
+    Append 'Consignment.Reference' element to given root object.
+
+    :param root: root XML object
+    :param value: string of reference number
+    :return:
+    """
+    if value is None:
+        value = ''
+    reference_element = ET.SubElement(root, "Consignment.Reference")
+    reference_element.text = str(value)
+
+
+def create_product_element(root, product_code):
+    """
+    Append 'Consignment.Product' element to given root object.
+
+    :param root: root XML object
+    :param product_code: string of Posti's product code
+    :return:
+    """
+    if product_code is None or product_code == '':
+        raise PakettikauppaException("Require product code in 'Consignment.Product'")
+
+    product_element = ET.SubElement(root, "Consignment.Product")
+    product_element.text = str(product_code)
+
+
+def create_merchandise_value_element(root, value=None):
+    """
+    Append 'Consignment.Merchandisevalue' element to given root object.
+
+    :param root: root XML element object
+    :param value: string of merchandise value
+    :return:
+    """
+    merchandise_value_element = ET.SubElement(root, "Consignment.Merchandisevalue")
+    if value is None:
+        merchandise_value_element.text = ''
+    else:
+        merchandise_value_element.text = str(value)
+
+
+def create_currency_element(root, value=None):
+    """
+    Append 'Consignment.Currency' element to given root object.
+
+    :param root: root XML element object
+    :param value: string of currency code i.e. 'EUR'
+    :return:
+    """
+    if value is None:
+        value = 'EUR'
+    else:
+        value = value.upper()
+    currency_element = ET.SubElement(root, "Consignment.Currency")
+    currency_element.text = str(value)
+
+
+def _create_one_tracking_code_element(root, tracking_code):
+    """
+    Append 'TrackingCode' element to given root object.
+
+    :param root: root XML element object
+    :param tracking_code: string of tracking code
+    :return:
+    """
+    child = ET.SubElement(root, "TrackingCode")
+    child.text = str(tracking_code)
+
+
+def _create_parcel_service_elements(root, list_services):
+    """
+    Append 'Parcel.ParcelService' element to given root object.
+
+    :param root: root XML element object
+    :param list_services:  list data of parcel services
+    :return:
+    """
+    if list_services is None:
+        return
+
+    if len(list_services) == 0:
+        return
+    else:
+        for dict_data in list_services:
+            parcel_service_root_element = ET.SubElement(root, "Parcel.ParcelService")
+            for key in dict_data:
+                child = ET.SubElement(parcel_service_root_element, key)
+                child.text = str(dict_data[key])

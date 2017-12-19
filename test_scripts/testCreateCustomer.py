@@ -15,7 +15,7 @@ _hInputData = {
     'street_address': 'Finlaysoninkuja 19',
     'post_office': 'Tampere',
     'postcode': '33210',
-    'country': 'FI',
+    'country': 'Finland',
     'phone': '+35812345A5',
     'email': 'tipi@vilkas.fi',
     'contact_person_name': 'Porntip Härkönen',

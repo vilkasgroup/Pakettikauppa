@@ -1,4 +1,4 @@
-from pakettikauppa_app.merchant import PkMerchant
+from pakettikauppa_app.merchant import PkMerchant, decode_pdf_content, write_pdf_to_file
 from datetime import datetime
 
 
@@ -14,6 +14,7 @@ API_KEY = 'd4fb618f-1f44-4dc0-bdce-4993f4b91b77'
 SECRET = 'b5c95243276d3ff398207f8dea3013fef001e6e5f51fb9cb2252f609608a81'
 ROUTING_ID = '1464524676'
 ORDER_ALIAS = 'ORDER10001'
+
 
 def create_shipment_input_data(merchant_object):
     dict_data = {
@@ -80,6 +81,6 @@ if __name__ == '__main__':
     dict_res_data = m.get_shipping_label(**req_input)
     encoded_pdf_content = dict_res_data['PDFcontent']
 
-    decoded_pdf_content = m.decode_pdf_content(encoded_pdf_content)
-    output_file = 'shipping_label_output.pdf'
-    m.write_pdf_to_file(output_file, decoded_pdf_content)
+    decoded_pdf_content = decode_pdf_content(encoded_pdf_content)
+    #output_file = 'shipping_label_output.pdf'
+    #write_pdf_to_file(output_file, decoded_pdf_content)
