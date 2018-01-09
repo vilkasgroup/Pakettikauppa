@@ -209,9 +209,11 @@ class PkMerchant(Pakettikauppa):
 
         # key error is thrown automatically if postal code is empty
         _postal_code = kwargs['postal_code']
+        if _postal_code is None or _postal_code == '':
+            raise ValueError("Require postal code data")
 
         _country_code2 = kwargs['country_code2']
-        if _country_code2 is None:
+        if _country_code2 is None or _country_code2 == '':
             _country_code2 = 'FI'
         else:
             _country_code2 = _country_code2.upper()
@@ -243,8 +245,8 @@ class PkMerchant(Pakettikauppa):
         dict_req_data['hash'] = digest_string
         self.mylogger.debug("Hash input data for pickup point search= {}".format(dict_req_data))
 
-        #content_string = ''
-        #for key, value in dict_req_data.items():
+        # content_string = ''
+        # for key, value in dict_req_data.items():
         #    content_string += key + '&' + value
 
         return dict_req_data
@@ -285,6 +287,9 @@ class PkMerchant(Pakettikauppa):
         if language_code2 is not None:
             language_code2 = language_code2.upper()
 
+        if language_code2 == '':
+            language_code2 = 'EN'
+
         _api_config = self.get_api_config('get_additional_service_list')
 
         dict_req_data = {
@@ -316,6 +321,37 @@ class PkMerchant(Pakettikauppa):
                 xml_req_data = self.get_xml_shipment_req_data(**kwargs)
             else:
                 xml_req_data = self.get_create_shipment_test_req_data()
+        else:
+            xml_req_data = self.get_xml_shipment_req_data(**kwargs)
+
+        headers = {
+            'Content-Encoding': 'utf-8',
+            'Content-Type': 'application/xml'
+        }
+        res_obj = super().send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
+        xml_res_string = res_obj.text
+        self.mylogger.debug("Response XML string = {}".format(xml_res_string))
+
+        return self.parse_xml_create_shipment_res(xml_res_string)
+
+    def create_shipment_with_simple_data(self, **kwargs):
+        """
+        Same as create_shipment() function expect the input parameter is in shorter format
+
+        This API send request data in XML format.
+
+        :param kwargs: see get_simple_test_data_create_shipment() function
+        :return dict_data: See parse_xml_create_shipment_res() function
+        """
+        _api_config = self.get_api_config('create_shipment')
+
+        if self._isInTestMode:
+            if kwargs is not None:
+                xml_req_data = self.get_xml_shipment_req_data(**kwargs)
+            else:
+                simple_dict_data = self.get_simple_test_data_create_shipment()
+                req_data = self.get_proper_req_data_create_shipment(**simple_dict_data)
+                xml_req_data = self.get_xml_shipment_req_data(**req_data)
         else:
             xml_req_data = self.get_xml_shipment_req_data(**kwargs)
 
@@ -391,6 +427,385 @@ class PkMerchant(Pakettikauppa):
         """
         dict_data = self.get_create_shipment_test_data()
         return self.get_xml_shipment_req_data(**dict_data)
+
+    def get_simple_test_data_create_shipment(self):
+        """
+        Generate more simplify version of request data of create shipment API. Output of this function should then pass
+        to get_proper_req_data_create_shipment() function to get right data structure for request input data.
+
+        For full version see get_create_shipment_test_data() function.
+
+        :return dict_data: dictionary of request data
+        """
+        routing_id = '1464524676'
+        order_alias = 'ORDER001'
+
+        dict_data = {
+            'Routing': {
+                'account': self._api_key,
+                'id': routing_id,
+                'name': order_alias,
+            },
+            'Shipment': {
+                'Sender': {
+                    'Name': 'Vilkas Group Oy',
+                    'Address': 'Finlaysoninkuja 19',
+                    'PostalCode': '33210',
+                    'City': 'Tampere',
+                    'Country': 'FI',
+                    'Phone': '',
+                    'Vatcode': '1234567-8',
+                    'Email': 'tipi@vilkas.fi',
+                },
+                'Recipient': {
+                    'Name': 'Receiver name',
+                    'Address': 'Nikinväylä 3 test',
+                    'PostalCode': '33100',
+                    'City': 'Tampere',
+                    'Country': 'FI',
+                    'Phone': '123456789',
+                    'Vatcode': '',
+                    'Email': 'tipi@vilkas.fi',
+                },
+                'Consignment': {
+                    'Reference': '3211479032410',
+                    'ProductCode': '90010',  # - Posti's product code 2103
+                    'ContentCode': 'D',  # Order->get('PR_ContentCode')
+                    'ReturnInstruction': 'E',  # Order->get('PR_ReturnInstruction')
+                    'InvoiceNumber': order_alias,
+                    'MerchandiseValue': 150,  # Order->get('PR_Merchandisevalue')
+                    'Currency': 'EUR',
+                    'AdditionalInfoText': "Order no.: 1107-1 -- Reference no.: 284554",
+                    'AdditionalServices': [
+                        {
+                            'ServiceCode': '2106',  # pickup point service
+                            'Specifier': {
+                                'name': 'pickup_point_id',
+                                'value': '8547',
+                            }
+                        },
+                        {
+                            'ServiceCode': '3101',  # cash on delivery service
+                            'Specifier': [
+                                {
+                                    'name': 'amount',
+                                    'value': '150'
+                                },
+                                {
+                                    'name': 'account',
+                                    'value': 'FI2180000012345678'
+                                },
+                                {
+                                    'name': 'codbic',
+                                    'value': 'DABAFIHH'
+                                },
+                                {
+                                    'name': 'reference',
+                                    'value': '12344'
+                                },
+                            ]
+                        },
+                    ],
+                    'Parcels': [
+                        {
+                            'Reference': '123456',  # not mandatory
+                            'PackageType': 'PC',
+                            'Weight': {'weight_unit': 'kg', 'value': '1.2'},
+                            'Volume': {'unit': 'm3', 'value': '0.6'},
+                            'InfoCode': '1012',
+                            'Contents': 'Test products',  # product description
+                            'ReturnService': '123',
+                            # Customs declaration info (for medicine)
+                            'ContentLine': {
+                                'description': 'Puita',
+                                'quantity': 1,
+                                'currency': 'EUR',
+                                'netweight': 1,
+                                'value': 100,
+                                'countryoforigin': 'FI',
+                                'tariffcode': '9608101000',
+                            },
+                            # this is not really needed in Pakettikauppa but Prinetti
+                            # 'ParcelServices': []
+                            'ParcelServices': [
+                                {
+                                    'ServiceCode': 'parcel service code'
+                                },
+                                {
+                                    'ServiceCode': 'parcel service code 2'
+                                },
+                            ]
+                        },
+                        {
+                            'Reference': '123457',
+                            'PackageType': 'PC',
+                            'Weight': {'weight_unit': 'kg', 'value': '1.2'},
+                            'Volume': {'unit': 'm3', 'value': '0.6'},
+                            'InfoCode': '1012',
+                            'Contents': 'Muttereita ja puita',  # product description
+                            'ReturnService': '123',
+                            # Customs declaration info (for medicine)
+                            'ContentLine': {},
+                            'ParcelServices': None
+                        },
+                    ]
+                }  # end Shipment.Consignment
+            }  # end Shipment
+        }
+
+        return dict_data
+
+    def get_proper_req_data_create_shipment(self, **simple_dict_data):
+        """
+        Generate low lever of request input data for create shipment API.
+
+        :param simple_dict_data: see output of get_simple_test_data_create_shipment() function
+        :return dict_data: dictionary of request data
+        """
+        if simple_dict_data is None:
+            raise KeyError("Require dictionary of input parameters for formatting")
+
+        _routing_id = simple_dict_data['Routing']['id']
+
+        dict_data = {
+            'eChannel': {
+                'ROUTING': {
+                    'Routing.Account': simple_dict_data['Routing']['account'],
+                    'Routing.Key': self.get_routing_key(_routing_id),
+                    'Routing.Id': _routing_id,
+                    'Routing.Name': simple_dict_data['Routing']['name'],
+                    'Routing.Time': datetime.now().strftime('%Y%m%d%H%M%S'),
+                    # - Ignored parameters in Pakettikauppa
+                    # 'Routing.Target' => { 'content' => '' },
+                    # 'Routing.Source' => { 'content' => '' },
+                    # 'Routing.Version'  => { 'content' => '' },
+                    # 'Routing.Mode' => { 'content' => '' },
+                },
+                'Shipment': {
+                    'Shipment.Sender': {
+                        'Sender.Contractid': '',
+                        'Sender.Name1': simple_dict_data['Shipment']['Sender']['Name'],
+                        'Sender.Name2': '',
+                        'Sender.Addr1': simple_dict_data['Shipment']['Sender']['Address'],
+                        'Sender.Addr2': '',
+                        'Sender.Addr3': '',
+                        'Sender.Postcode': simple_dict_data['Shipment']['Sender']['PostalCode'],
+                        'Sender.City': simple_dict_data['Shipment']['Sender']['City'],
+                        'Sender.Country': simple_dict_data['Shipment']['Sender']['Country'],
+                        'Sender.Phone': simple_dict_data['Shipment']['Sender']['Phone'],
+                        'Sender.Vatcode': simple_dict_data['Shipment']['Sender']['Vatcode'],
+                        'Sender.Email': simple_dict_data['Shipment']['Sender']['Email'],
+                    },
+                    'Shipment.Recipient': {
+                        'Recipient.Code': '',
+                        'Recipient.Name1': simple_dict_data['Shipment']['Recipient']['Name'],
+                        'Recipient.Name2': '',
+                        'Recipient.Addr1': simple_dict_data['Shipment']['Recipient']['Address'],
+                        'Recipient.Addr2': '',
+                        'Recipient.Addr3': '',
+                        'Recipient.Postcode': simple_dict_data['Shipment']['Recipient']['PostalCode'],
+                        'Recipient.City': simple_dict_data['Shipment']['Recipient']['City'],
+                        'Recipient.Country': simple_dict_data['Shipment']['Recipient']['Country'],
+                        'Recipient.Phone': simple_dict_data['Shipment']['Recipient']['Phone'],
+                        'Recipient.Vatcode': simple_dict_data['Shipment']['Recipient']['Vatcode'],
+                        'Recipient.Email': simple_dict_data['Shipment']['Recipient']['Email'],
+                    },
+                    'Shipment.Consignment': {
+                        'Consignment.Reference': simple_dict_data['Shipment']['Consignment']['Reference'],
+                        'Consignment.Product': simple_dict_data['Shipment']['Consignment']['ProductCode'],
+                        'Consignment.Contentcode': simple_dict_data['Shipment']['Consignment']['ContentCode'],
+                        'Consignment.ReturnInstruction': simple_dict_data['Shipment']['Consignment'][
+                            'ReturnInstruction'],
+                        'Consignment.Invoicenumber': simple_dict_data['Shipment']['Consignment']['InvoiceNumber'],
+                        'Consignment.Merchandisevalue': simple_dict_data['Shipment']['Consignment']['MerchandiseValue'],
+                        'Consignment.Currency': simple_dict_data['Shipment']['Consignment']['Currency'],
+                        'Consignment.AdditionalInfo': {
+                            'AdditionalInfo.Text': simple_dict_data['Shipment']['Consignment']['AdditionalInfoText'],
+                        },
+                        'Consignment.AdditionalService': '',
+                        'Consignment.Parcel': ''
+                    }  # end Shipment.Consignment
+                }  # end Shipment
+            }  # end eChannel
+        }
+
+        _additional_services = self.generate_additional_services_data(
+            simple_dict_data['Shipment']['Consignment']['AdditionalServices']
+        )
+        if _additional_services is not None and len(_additional_services) > 0:
+            dict_data['eChannel']['Shipment']['Shipment.Consignment']['Consignment.AdditionalService'] \
+                = _additional_services
+
+        _parcel_services = self.generate_parcels_data(
+            simple_dict_data['Shipment']['Consignment']['Parcels']
+        )
+        if _parcel_services is not None and len(_parcel_services) > 0:
+            dict_data['eChannel']['Shipment']['Shipment.Consignment']['Consignment.Parcel'] = _parcel_services
+
+        return dict_data
+
+    def generate_additional_services_data(self, list_data=None):
+        """
+        Generate additional services data.
+
+        :param list_data: list of dictionary of additional services
+        :return list_data: list of formatted dictionary of additional services
+        """
+        if list_data is None:
+            return None
+
+        _var_type = type(list_data).__name__
+
+        _return_list = []
+        if _var_type == 'list':
+            for dict_data in list_data:
+                _return_list.append(self.get_one_additional_service_data(**dict_data))
+        elif _var_type == 'dict':
+            _return_list.append(self.get_one_additional_service_data(**list_data))
+        else:
+            raise ValueError("Unsupported data type")
+
+        return _return_list
+
+    def get_one_additional_service_data(self, **kwargs):
+        """
+        Generate one additional service data item.
+
+        :param kwargs:
+        Kwargs contain following keys:
+          ServiceCode: string of additional service code
+          Specifier: list of dictionary or dictionary of service details. See get_one_specifier_data() function for
+                     input format
+        :return dict_data: dictionary for one additional service
+        """
+        _return_dict = {
+            'AdditionalService.ServiceCode': kwargs['ServiceCode'],
+        }
+        _specifiers = kwargs['Specifier']
+        _data_type = type(_specifiers).__name__
+
+        if _data_type == 'dict':
+            _return_dict['AdditionalService.Specifier'] = self.get_one_specifier_data(**_specifiers)
+        elif _data_type == 'list':
+            _specifier_list = []
+            for _a_dict_specifier in _specifiers:
+                _specifier_list.append(self.get_one_specifier_data(**_a_dict_specifier))
+            _return_dict['AdditionalService.Specifier'] = _specifier_list
+        else:
+            raise ValueError("Unsupported data type")
+        return _return_dict
+
+    def get_one_specifier_data(self, **kwargs):
+        """
+        Generate one specifier data item
+
+        :param kwargs:
+        Kwargs contain following keys:
+          name: attribute name for additional service
+          value: attribute value
+        :return dict_data: dictionary of one specifier
+        """
+        dict_data = {
+            'name': kwargs['name'],
+            'value': kwargs['value']
+        }
+        return dict_data
+
+    def generate_parcels_data(self, list_data=None):
+        """
+        Generate parcels data.
+
+        :param list_data: list of dictionary of parcels
+        :return list_data: list of formatted dictionary of parcels
+        """
+        if list_data is None:
+            return None
+
+        _var_type = type(list_data).__name__
+
+        _return_list = []
+        if _var_type == 'list':
+            for dict_data in list_data:
+                _return_list.append(self.get_one_parcel_data(**dict_data))
+        elif _var_type == 'dict':
+            _return_list.append(self.get_one_parcel_data(**list_data))
+        else:
+            raise ValueError("Unsupported data type")
+
+        return _return_list
+
+    def get_one_parcel_data(self, **kwargs):
+        """
+        Generate one parcel data.
+
+        :param kwargs: dictionary
+        Kwargs contain following keys:
+          Reference: parcel reference
+          PackageType: code of package type
+          Weight: dictionary with 'weight_unit' and 'value' key.
+          Volume: dictionary with 'unit' and 'value' key.
+          InfoCode:
+          Contents: product description
+          ReturnService: return service code
+          ContentLine: dictionary of parcel content data
+          ParcelServices: parcel additional service (optional)
+        :return dict_data: dictionary of parcel data
+        """
+        # print("Kwargs {}".format(kwargs))
+        _parcel_data = {
+            'Parcel.Reference': kwargs['Reference'],
+            'Parcel.Packagetype': kwargs['PackageType'],
+            'Parcel.Weight': {
+                'weight_unit': kwargs['Weight']['weight_unit'],
+                'value': kwargs['Weight']['value'],
+            },
+            'Parcel.Volume': {
+                'unit': kwargs['Volume']['unit'],
+                'value': kwargs['Volume']['value'],
+            },
+            'Parcel.Infocode': kwargs['InfoCode'],
+            'Parcel.Contents': kwargs['Contents'],
+            'Parcel.ReturnService': kwargs['ReturnService'],
+            'Parcel.contentline': {},
+            'Parcel.ParcelService': None
+        }
+
+        if kwargs['ContentLine'] is not None and len(kwargs['ContentLine']) > 0:
+            _parcel_data['Parcel.contentline'] = {
+                'contentline.description': kwargs['ContentLine']['description'],
+                'contentline.quantity': kwargs['ContentLine']['quantity'],
+                'contentline.currency': kwargs['ContentLine']['currency'],
+                'contentline.netweight': kwargs['ContentLine']['netweight'],
+                'contentline.value': kwargs['ContentLine']['value'],
+                'contentline.countryoforigin': kwargs['ContentLine']['countryoforigin'],
+                'contentline.tariffcode': kwargs['ContentLine']['tariffcode'],
+            }
+
+        if kwargs['ParcelServices'] is not None and len(kwargs['ParcelServices']) > 0:
+            _parcel_services = []
+            if type(kwargs['ParcelServices']).__name__ == 'dict':
+                _parcel_services.append(self.get_one_parcel_service_data(**kwargs['ParcelServices']))
+            elif type(kwargs['ParcelServices']).__name__ == 'list':
+                for dict_data in kwargs['ParcelServices']:
+                    _parcel_services.append(self.get_one_parcel_service_data(**dict_data))
+            else:
+                raise ValueError("Unsupported data type")
+            _parcel_data['Parcel.ParcelService'] = _parcel_services
+
+        return _parcel_data
+
+    def get_one_parcel_service_data(self, **kwargs):
+        """
+        Generate one parcel service data.
+        :param kwargs: dictionary of parcel service code
+        Kwargs contain following key:
+          ServiceCode: parcel service code - string
+        :return dict_data: dictionary of one parcel service
+        """
+        dict_data = {
+            'ServiceCode': kwargs['ServiceCode']
+        }
+        return dict_data
 
     def get_create_shipment_test_data(self):
         """
@@ -547,6 +962,61 @@ class PkMerchant(Pakettikauppa):
 
         return dict_data
 
+    def validate_input_params_create_shipment(self, **kwargs):
+        if len(kwargs) <= 0:
+            raise KeyError("Require input parameters")
+
+        self.mylogger.debug("Root input data = {}".format(kwargs))
+
+        if 'eChannel' not in kwargs:
+            raise KeyError("eChannel key is missing")
+
+        self.validate_routing_data(**kwargs)
+
+        if 'Shipment' not in kwargs['eChannel']:
+            raise KeyError("Shipment key is missing")
+
+        if 'Shipment.Sender' not in kwargs['eChannel']['Shipment']:
+            raise KeyError("Missing Shipment.Sender key")
+
+        if 'Sender.Name1' and 'Sender.Addr1' and 'Sender.Postcode' and 'Sender.City' and 'Sender.Country' \
+                and 'Sender.Vatcode' and 'Sender.Email' not in kwargs['eChannel']['Shipment']['Shipment.Sender']:
+            raise KeyError("Missing mandatory key in Shipment.Sender element")
+
+        if 'Shipment.Recipient' not in kwargs['eChannel']['Shipment']:
+            raise KeyError("Missing Shipment.Recipient key")
+
+        if 'Recipient.Name1' and 'Recipient.Addr1' and 'Recipient.Postcode' and 'Recipient.City' \
+                and 'Recipient.Country' and 'Recipient.Phone' and 'Recipient.Email' not in \
+                kwargs['eChannel']['Shipment']['Shipment.Recipient']:
+            raise KeyError("Missing mandatory key in Shipment.Recipient element")
+
+        if 'Shipment.Consignment' not in kwargs['eChannel']['Shipment']:
+            raise KeyError("Missing Shipment.Consignment key")
+
+        if 'Consignment.Reference' and 'Consignment.Product' and 'Consignment.Contentcode' and \
+                'Consignment.Invoicenumber' and 'Consignment.Currency' and 'Consignment.Parcel' not in \
+                kwargs['eChannel']['Shipment']['Shipment.Consignment']:
+            raise KeyError("Missing mandatory key in Shipment.Consignment element")
+
+        return
+
+    def validate_routing_data(self, **kwargs):
+        if 'ROUTING' not in kwargs['eChannel']:
+            raise KeyError("ROUTING key is missing")
+        dict_routing = kwargs['eChannel']['ROUTING']
+        if len(dict_routing) == 0:
+            raise ValueError("Missing routing data")
+
+        self.mylogger.debug("Data type for ROUTING key = " + type(dict_routing).__name__)
+        if type(dict_routing).__name__ != 'dict':
+            raise TypeError("Invalid data type for ROUTING key")
+
+        if 'Routing.Account' and 'Routing.Id' and 'Routing.Key' and 'Routing.Name' and 'Routing.Time' not in \
+                kwargs['eChannel']['ROUTING']:
+            raise KeyError("Missing mandatory key in ROUTING element")
+        return
+
     def get_xml_shipment_req_data(self, **kwargs):
         """
         Construct XML string of request data for create shipment API
@@ -557,10 +1027,12 @@ class PkMerchant(Pakettikauppa):
             eChannel: dictionary with following keys
                 ROUTING: see _create_routing_elements() function
 
-                Shipment:
+                Shipment: see _create_shipment_elements() function
 
         :return xml_string: string of XML request data for create shipment API
         """
+        self.validate_input_params_create_shipment(**kwargs)
+
         root = ET.Element('eChannel')
 
         dict_routing = kwargs['eChannel']['ROUTING']
@@ -1132,20 +1604,20 @@ class PkMerchant(Pakettikauppa):
                     'content': {
                         # Send request for multiple shipping labels
                         # this is for test credential
-                         'TrackingCode': [
+                        'TrackingCode': [
                             {
                                 'Code': 'JJFITESTLABEL601'
                             },
                             {
                                 'Code': 'JJFITESTLABEL602'
                             },
-                         ]
+                        ]
                         #
                         # or use this way to send a request for one shipping label
                         # This is for Vilkas API key
                         # 'TrackingCode': {
                         #    'Code': 'JJFITESTLABEL1332'
-                        #}
+                        # }
                     }
                 }
             }
@@ -1180,12 +1652,19 @@ class PkMerchant(Pakettikauppa):
         if len(kwargs) == 0:
             raise Exception(KeyError("Expect input parameters"))
 
+        if 'eChannel' not in kwargs:
+            raise KeyError("eChannel key is missing")
+
+        self.validate_routing_data(**kwargs)
+
         # self.logger.debug("[GetXmlShippingLabel] KWARGS={}".format(kwargs))
         root = ET.Element('eChannel')
 
         dict_routing = kwargs['eChannel']['ROUTING']
         self._create_routing_elements(root, **dict_routing)
 
+        if 'PrintLabel' not in kwargs['eChannel']:
+            raise KeyError("Missing PrintLabel key")
         self._create_print_label_element(root, **kwargs['eChannel']['PrintLabel'])
 
         xml_string = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ", encoding="utf-8")
@@ -1203,7 +1682,23 @@ class PkMerchant(Pakettikauppa):
         :return:
         """
         if dict_data is None or len(dict_data) == 0:
-            raise Exception(KeyError("Expect input parameters"))
+            raise KeyError("Missing data in PrintLabel key")
+
+        if 'responseFormat' not in dict_data:
+            raise KeyError("Missing responseFormat -key")
+
+        if dict_data['responseFormat'] is None or dict_data['responseFormat'] == '':
+            raise ValueError("Invalid value for responseFormat key")
+
+        _accept_value = ('File', 'inline')
+        if dict_data['responseFormat'] not in _accept_value:
+            raise ValueError("Invalid value for responseFormat key")
+
+        if 'content' not in dict_data:
+            raise KeyError("Missing content -key")
+
+        if 'TrackingCode' not in dict_data['content']:
+            raise KeyError("Missing TrackingCode -key")
 
         self.logger.debug("[CreatePrintLabelElement] Dict data={}".format(dict_data))
         print_label_element = ET.SubElement(root, "PrintLabel")

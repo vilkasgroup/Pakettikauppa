@@ -39,10 +39,10 @@ setup(
               'venv.lib.python3.6.site-packages.setuptools.command', 'venv.lib.python3.6.site-packages.pkg_resources',
               'venv.lib.python3.6.site-packages.pkg_resources.extern',
               'venv.lib.python3.6.site-packages.pkg_resources._vendor',
-              'venv.lib.python3.6.site-packages.pkg_resources._vendor.packaging', 'test_cases', 'test_scripts',
+              'venv.lib.python3.6.site-packages.pkg_resources._vendor.packaging',
               'pakettikauppa_app'],
-    url='',
-    license='',
+    url='https://github.com/vilkasgroup/Pakettikauppa',
+    license='MIT license',
     author='Porntip Chaibamrung',
     author_email='tipi@vilkas.fi',
     description='Pakettikauppa integration app'

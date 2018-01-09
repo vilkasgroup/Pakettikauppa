@@ -1,2 +1,2 @@
 # PakettikauppaPython
-Python codes for Pakettikauppa
+Python codes for Pakettikauppa integration

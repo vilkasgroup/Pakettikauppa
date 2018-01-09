@@ -16,7 +16,7 @@ ROUTING_ID = '1464524676'
 ORDER_ALIAS = 'ORDER10001'
 
 
-def create_shipment_input_data(merchant_object):
+def create_input_data(merchant_object):
     dict_data = {
         'eChannel': {
             'ROUTING': {
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # test with static test credential
     #m = PkMerchant(1)
 
-    req_input = create_shipment_input_data(m)
+    req_input = create_input_data(m)
     print("request input: {}".format(req_input))
     print("\n")
 
