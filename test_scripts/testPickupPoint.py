@@ -1,4 +1,4 @@
-from pakettikauppa_app.merchant import PkMerchant
+from pakettikauppa.merchant import PkMerchant
 
 m = PkMerchant(1)
 h_config = m.get_api_config('search_pickup_points')

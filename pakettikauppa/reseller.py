@@ -13,7 +13,7 @@ __author__ = 'Porntip Chaibamrung'
 import re
 import logging
 from time import time
-from pakettikauppa_app.pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
+from pakettikauppa.pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 
 class PkReseller(Pakettikauppa):

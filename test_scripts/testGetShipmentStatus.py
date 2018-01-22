@@ -1,4 +1,4 @@
-from pakettikauppa_app.merchant import PkMerchant
+from pakettikauppa.merchant import PkMerchant
 
 # Vilkas own key for customer id = 65 but end point must be in test mode
 API_KEY = 'd4fb618f-1f44-4dc0-bdce-4993f4b91b77'

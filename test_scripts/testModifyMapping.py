@@ -14,7 +14,7 @@ print(town_dictionary['Town 1'][0])
 town_dictionary['Town 1'] = ['My town']
 print(town_dictionary['Town 1'][0])
 """
-from pakettikauppa_app.reseller import PkReseller
+from pakettikauppa.reseller import PkReseller
 
 resel = PkReseller(1)
 

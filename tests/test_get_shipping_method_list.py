@@ -1,6 +1,6 @@
 import logging
 from unittest import TestCase, main
-from pakettikauppa_app.merchant import PkMerchant
+from pakettikauppa.merchant import PkMerchant
 
 
 logging.basicConfig(

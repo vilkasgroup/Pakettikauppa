@@ -1,7 +1,7 @@
 import logging
 import unittest
 # from unittest import TestCase
-from pakettikauppa_app.reseller import PkReseller
+from pakettikauppa.reseller import PkReseller
 
 logging.basicConfig(
     level=logging.DEBUG,

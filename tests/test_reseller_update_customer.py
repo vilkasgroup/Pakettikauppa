@@ -1,5 +1,5 @@
 import unittest
-from pakettikauppa_app.reseller import PkReseller
+from pakettikauppa.reseller import PkReseller
 
 
 class TestUpdateCustomer(unittest.TestCase):

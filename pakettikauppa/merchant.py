@@ -18,7 +18,7 @@ from time import time
 from datetime import datetime
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
-from pakettikauppa_app.pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
+from pakettikauppa.pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 
 def decode_pdf_content(encoded_pdf_content):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from pakettikauppa_app.reseller import PkReseller
+from pakettikauppa.reseller import PkReseller
 
 resel = PkReseller(1)
 

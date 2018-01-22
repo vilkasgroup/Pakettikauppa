@@ -1,4 +1,4 @@
-from pakettikauppa_app.merchant import PkMerchant
+from pakettikauppa.merchant import PkMerchant
 from datetime import datetime
 
 

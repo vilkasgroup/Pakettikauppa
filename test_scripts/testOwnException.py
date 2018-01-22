@@ -1,3 +1,3 @@
-from pakettikauppa_app import PakettikauppaException
+from pakettikauppa import PakettikauppaException
 
 raise PakettikauppaException("My key error", KeyError())

@@ -1,4 +1,4 @@
-from pakettikauppa_app.merchant import PkMerchant, decode_pdf_content, write_pdf_to_file
+from pakettikauppa.merchant import PkMerchant, decode_pdf_content, write_pdf_to_file
 from datetime import datetime
 
 
