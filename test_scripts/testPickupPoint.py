@@ -14,5 +14,5 @@ input_params = {
 content_string = m.get_pickup_point_req_data(h_config['api_key'], **input_params)
 print("Content string " + str(content_string) )
 
-#m.send_request('POST', h_config['api_post_url'], content_string)
+# m.send_request('POST', h_config['api_post_url'], content_string)
 m.search_pickup_points(**input_params)

@@ -10,12 +10,15 @@ import hashlib
 import hmac
 import requests
 import logging
-import json
 from functools import wraps
 
 
-def check_api_name(function):
-    @wraps(function)
+def check_api_name(in_function):
+    """
+    Validate API name
+    :type in_function: input function
+    """
+    @wraps(in_function)
     def decorated_function(self, param):
         if param is None or param == '':
             raise PakettikauppaException("API name", "Missing API name")
@@ -24,7 +27,7 @@ def check_api_name(function):
         if str(type(param).__name__) != 'str':
             raise PakettikauppaException(param, "Invalid parameter type")
         else:
-            return function(self, param)
+            return in_function(self, param)
 
     # or use this line => return wraps(function)(decorated_function)
     return decorated_function
@@ -84,31 +87,32 @@ class Pakettikauppa:
         :param api_key: API key string
         :param secret_key: secret key string
 
-        :return api_config: dictionary of API configuration
-        api_config: contains following keys
-             api_post_url (string): Post URL
-             api_key (string): API key
-             api_secret (string) : API secret
+        :return api_config: dictionary of API configuration which contains following keys
+            api_config:
+            api_post_url (string): Post URL
+            api_key (string): API key
+            api_secret (string) : API secret
         """
         if api_suffix is None:
-            raise PakettikauppaException("API suffix", "Missing API suffix")
+            raise PakettikauppaException("Missing API suffix")
 
         _api_post_url = Pakettikauppa._base_api_end_point + api_suffix
         _api_config = {
-            'api_post_url' : _api_post_url,
+            'api_post_url': _api_post_url,
             'api_key': api_key,
             'api_secret': secret_key
         }
+
         return _api_config
 
     def get_api_end_point(self):
         """
         Get API base end point string
-        
-        :return base_end_point: API base end point string 
+
+        :return base_end_point: API base end point string
         """
         return self._base_api_end_point
-    
+
     def get_hash_sha256(self, secret_key, **kwargs):
         """
         Calculate SHA256 digest string.
@@ -126,7 +130,7 @@ class Pakettikauppa:
         my_lst = []
         for key in sorted(kwargs):
             self.logger.debug("Key={}, Value={}".format(key, kwargs[key]))
-            my_lst.append( str(kwargs[key]) )
+            my_lst.append(str(kwargs[key]))
         plain_text = '&'.join(map(str, my_lst))
         self.logger.debug("Plain text={}".format(plain_text))
 
@@ -143,21 +147,21 @@ class Pakettikauppa:
     def get_md5_hash(self, api_key=None, secret_key=None, routing_id=None):
         """
         Calculate MD5 digest string.
-        
+
         :param api_key: string of API key
         :param secret_key: string of secret key
-        :param routing_id: string of routing id 
+        :param routing_id: string of routing id
         :return digest_string: digest string
         """
         if api_key is None or api_key == '':
             raise Exception(ValueError("Need API key parameter"))
-        
+
         if secret_key is None or secret_key == '':
             raise Exception(ValueError("Need Secret key parameter"))
-        
+
         if routing_id is None or routing_id == '':
             raise Exception(ValueError("Need routing id parameter"))
-        
+
         routing_key_data = str(api_key) + str(routing_id) + str(secret_key)
         self.logger.debug("Routing key data={}".format(routing_key_data))
         digest_string = hashlib.md5(routing_key_data.encode('utf-8')).hexdigest()
@@ -167,16 +171,16 @@ class Pakettikauppa:
     def send_request(self, send_method='POST', _api_post_url=None, req_input=None, **headers):
         """
         Send a request to Pakettikauppa.
-        
+
         :param send_method: type of request method. Possible value are 'POST' and 'GET', 'POST' is default value.
         :param _api_post_url: string of post URL
         :param req_input: request input data
         :param headers: dictionary of header data
-        :return res_obj: response object 
+        :return res_obj: response object
         """
         if _api_post_url is None or _api_post_url == '':
             raise Exception(ValueError("Need post URL data"))
-        
+
         if headers is None:
             headers = {
                 # 'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
@@ -212,9 +216,9 @@ class Pakettikauppa:
     def parse_res_json_data(self, res_obj):
         """
         Parse response JSON data (Not yet completely implemented)
-        
-        :param res_obj: response object 
-        :return: 
+
+        :param res_obj: response object
+        :return:
         """
         list_data = res_obj.json()
         self.logger.debug("Response JSON data={}".format(list_data))
@@ -232,11 +236,12 @@ class Pakettikauppa:
         :return list_data: list data of response data from Pakettikauppa
         """
         if res_obj is not None:
+            list_data = None
             try:
                 list_data = res_obj.json()
-                self.mylogger.debug("Response: {}".format(list_data))
+                self.logger.debug("Response: {}".format(list_data))
             except Exception:
-                raise Exception("Unable to parse JSON data")
+                raise PakettikauppaException("Unable to parse JSON data")
             finally:
                 return list_data
         else:

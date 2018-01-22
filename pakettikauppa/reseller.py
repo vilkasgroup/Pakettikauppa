@@ -164,8 +164,7 @@ class PkReseller(Pakettikauppa):
         """
         Construct request data for create customer API.
 
-        :param kwargs:
-        Kwargs:
+        :param kwargs: contains following key
             name: customer name
             business_id: VAT ID
             payment_service_provider: possible values are 'CHECKOUT' and 'CREDIT_CARD', can be empty string

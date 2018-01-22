@@ -1,3 +1,8 @@
 /pakettikauppa.rst
 /pakettikauppa.*.rst
 /modules.rst
+
+# Sphinx generated files
+_build/
+source/_static
+source/_templates

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is a module for Pakettikauppa integration for merchants to use
 
 The module provides below functionality:
@@ -8,7 +9,6 @@ The module provides below functionality:
     5. Create shipment
     6. Get shipping label
 """
-
 __version__ = '0.1'
 __author__ = 'Porntip Chaibamrung'
 
@@ -671,11 +671,10 @@ class PkMerchant(Pakettikauppa):
         """
         Generate one additional service data item.
 
-        :param kwargs:
-        Kwargs contain following keys:
-          ServiceCode: string of additional service code
-          Specifier: list of dictionary or dictionary of service details. See get_one_specifier_data() function for
-                     input format
+        :param kwargs: contain following keys:
+            ServiceCode: string of additional service code
+            Specifier: list of dictionary or dictionary of service details. See get_one_specifier_data() function for\
+                       input format
         :return dict_data: dictionary for one additional service
         """
         _return_dict = {
@@ -699,10 +698,9 @@ class PkMerchant(Pakettikauppa):
         """
         Generate one specifier data item
 
-        :param kwargs:
-        Kwargs contain following keys:
-          name: attribute name for additional service
-          value: attribute value
+        :param kwargs: contain following keys:
+            name: attribute name for additional service
+            value: attribute value
         :return dict_data: dictionary of one specifier
         """
         dict_data = {
@@ -738,17 +736,16 @@ class PkMerchant(Pakettikauppa):
         """
         Generate one parcel data.
 
-        :param kwargs: dictionary
-        Kwargs contain following keys:
-          Reference: parcel reference
-          PackageType: code of package type
-          Weight: dictionary with 'weight_unit' and 'value' key.
-          Volume: dictionary with 'unit' and 'value' key.
-          InfoCode:
-          Contents: product description
-          ReturnService: return service code
-          ContentLine: dictionary of parcel content data
-          ParcelServices: parcel additional service (optional)
+        :param kwargs: dictionary contain following keys:
+            Reference: parcel reference
+            PackageType: code of package type
+            Weight: dictionary with 'weight_unit' and 'value' key.
+            Volume: dictionary with 'unit' and 'value' key.
+            InfoCode:
+            Contents: product description
+            ReturnService: return service code
+            ContentLine: dictionary of parcel content data
+            ParcelServices: parcel additional service (optional)
         :return dict_data: dictionary of parcel data
         """
         # print("Kwargs {}".format(kwargs))
@@ -797,9 +794,9 @@ class PkMerchant(Pakettikauppa):
     def get_one_parcel_service_data(self, **kwargs):
         """
         Generate one parcel service data.
-        :param kwargs: dictionary of parcel service code
-        Kwargs contain following key:
-          ServiceCode: parcel service code - string
+
+        :param kwargs: dictionary of parcel service code, contain following key:
+            ServiceCode: parcel service code - string
         :return dict_data: dictionary of one parcel service
         """
         dict_data = {
@@ -1527,8 +1524,7 @@ class PkMerchant(Pakettikauppa):
         Construct dictionary from response data.
 
         :param xml_string: XML string of response data
-        :return: dict_data: dictionary
-        dict_data: contains below keys
+        :return: dict_data: dictionary, contains below keys
             status (integer): 1 = operation OK
             message (string): response message
             PDFcontent (string): binary data of PDF content
@@ -1628,22 +1624,28 @@ class PkMerchant(Pakettikauppa):
     def get_xml_shipping_label_req_data(self, **kwargs):
         """
         Construct XML string request data for getting shipping label
-        :param kwargs:
-        Kwargs:
-            eChannel: contains following keys:
+
+        :param kwargs: contains following keys
+
+            eChannel: contains following keys
                 ROUTING: dictionary of routing data
                 PrintLabel: dictionary of tracking codes
-        ROUTING:
-            Routing.Account: API key
-            Routing.Key: MD5 hash string
-            Routing.Id: could be order id or shop id or combination of both
-            Routing.Name: could be order alias or shop alias or combination of both
-            Routing.Time: string of current datetime with following format '%Y%m%d%H%M%S'
-        PrintLabel:
-            responseFormat: expected response data format. Possible values are "File" and "inline", "File" is default.
-            content: dictionary of tracking code with 'TrackingCode' as a key.
-        TrackingCode: could be dictionary with 'Code' key or list of dictionary of 'Code' key for asking multiple labels
-            Code: string of tracking code
+
+            ROUTING:
+                Routing.Account: API key
+                Routing.Key: MD5 hash string
+                Routing.Id: could be order id or shop id or combination of both
+                Routing.Name: could be order alias or shop alias or combination of both
+                Routing.Time: string of current datetime with following format '%Y%m%d%H%M%S'
+
+            PrintLabel:
+                responseFormat: expected response data format. Possible values are "File" and "inline", \
+                                "File" is default.
+                content: dictionary of tracking code with 'TrackingCode' as a key.
+
+            TrackingCode: could be dictionary with 'Code' key or list of dictionary of 'Code' key for asking \
+                          multiple labels
+                Code: string of tracking code
 
         :return xml_string:
         """
