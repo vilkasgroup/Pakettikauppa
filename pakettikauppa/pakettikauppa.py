@@ -79,7 +79,7 @@ class Pakettikauppa:
         """
         return self.logger
 
-    def get_api_config(self, api_suffix=None, api_key=None, secret_key=None):
+    def get_full_api_config(self, api_suffix=None, api_key=None, secret_key=None):
         """
         Get API configuration data.
 

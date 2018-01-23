@@ -107,7 +107,7 @@ class PkReseller(Pakettikauppa):
             api_secret (string): secret key
         """
         _api_suffix = self.get_api_suffix(api_name)
-        _api_config = super(__class__, self).get_api_config(_api_suffix, self._api_key, self._secret)
+        _api_config = super(__class__, self).get_full_api_config(_api_suffix, self._api_key, self._secret)
         return _api_config
 
     def clean_up_phone_data(self, phone_string=None):
