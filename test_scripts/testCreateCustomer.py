@@ -24,6 +24,6 @@ _hInputData = {
     'customer_service_phone': '',
     'customer_service_email': '',
 }
-resel.get_h_req_data(**_hInputData)
+# resel.get_h_req_data(**_hInputData)
 
-#resel.create_customer(**_hInputData)
+resel.create_customer(**_hInputData)

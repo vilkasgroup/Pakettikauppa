@@ -9,6 +9,8 @@ The module provides below functionality:
     5. Create shipment
     6. Get shipping label
 """
+from __future__ import absolute_import
+
 __version__ = '0.1'
 __author__ = 'Porntip Chaibamrung'
 
@@ -18,7 +20,7 @@ from time import time
 from datetime import datetime
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
-from pakettikauppa.pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
+from .pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 
 def decode_pdf_content(encoded_pdf_content):
@@ -100,7 +102,8 @@ class PkMerchant(Pakettikauppa):
         """
         self._isInTestMode = is_test_mode
 
-        super().__init__(self._isInTestMode)
+        # super().__init__(self._isInTestMode) # for Python3 only
+        super(PkMerchant, self).__init__(self._isInTestMode)
 
         self.mylogger = logging.getLogger(__name__)
 
@@ -152,7 +155,7 @@ class PkMerchant(Pakettikauppa):
             api_secret (string): secret key
         """
         _api_suffix = self.get_api_suffix(api_name)
-        _api_config = super().get_api_config(_api_suffix, self._api_key, self._secret)
+        _api_config = super(__class__, self).get_api_config(_api_suffix, self._api_key, self._secret)
         return _api_config
 
     def search_pickup_points(self, **kwargs):
@@ -167,7 +170,7 @@ class PkMerchant(Pakettikauppa):
 
         dict_req_data = self.get_pickup_point_req_data(_api_config['api_key'], **kwargs)
 
-        res_obj = super().send_request('POST', _api_config['api_post_url'], dict_req_data)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], dict_req_data)
         # self.get_res_pickup_point_data(res_obj)
         return self.parse_res_to_list(res_obj)
 
@@ -273,7 +276,7 @@ class PkMerchant(Pakettikauppa):
         dict_req_data['hash'] = digest_string
         self.mylogger.debug("Hash input data = {}".format(dict_req_data))
 
-        res_obj = super().send_request('POST', _api_config['api_post_url'], dict_req_data)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], dict_req_data)
 
         return self.parse_res_to_list(res_obj)
 
@@ -301,7 +304,7 @@ class PkMerchant(Pakettikauppa):
         dict_req_data['hash'] = digest_string
         self.mylogger.debug("Hash input data = {}".format(dict_req_data))
 
-        res_obj = super().send_request('POST', _api_config['api_post_url'], dict_req_data)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], dict_req_data)
 
         return self.parse_res_to_list(res_obj)
 
@@ -328,7 +331,7 @@ class PkMerchant(Pakettikauppa):
             'Content-Encoding': 'utf-8',
             'Content-Type': 'application/xml'
         }
-        res_obj = super().send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
         xml_res_string = res_obj.text
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
 
@@ -359,7 +362,7 @@ class PkMerchant(Pakettikauppa):
             'Content-Encoding': 'utf-8',
             'Content-Type': 'application/xml'
         }
-        res_obj = super().send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
         xml_res_string = res_obj.text
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
 
@@ -1462,7 +1465,7 @@ class PkMerchant(Pakettikauppa):
         """
         _api_config = self.get_api_config('get_shipment_status')
         dict_req_data = self.get_shipment_status_req_data(tracking_code)
-        res_obj = super().send_request('POST', _api_config['api_post_url'], dict_req_data)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], dict_req_data)
         self.logger.debug("[GetShipment] Response={}".format(res_obj.text))
         return
 
@@ -1512,7 +1515,7 @@ class PkMerchant(Pakettikauppa):
             'Content-Type': 'application/xml'
         }
 
-        res_obj = super().send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
 
         xml_res_string = res_obj.text
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
@@ -1531,7 +1534,7 @@ class PkMerchant(Pakettikauppa):
             ContentEncoded (boolean): True = PDFContent data is encoded
         """
         if xml_string is None or xml_string == '':
-            self.logger.error("No XML string pass to the function")
+            self.mylogger.error("No XML string pass to the function")
             return None
 
         root = ET.fromstring(xml_string)

@@ -29,8 +29,8 @@ class TestUpdateCustomer(unittest.TestCase):
 
     def test_passing_invalid_key(self):
         with self.assertRaises(Exception):
-            self.a_reseller.update_customer(123, **{ 'vat_id': 'FI12345-6'})
-        #self.a_reseller.update_customer(123, **{'vat_id': 'FI12345-6'})
+            self.a_reseller.update_customer(123, **{'vat_id': 'FI12345-6'})
+        # self.a_reseller.update_customer(123, **{'vat_id': 'FI12345-6'})
 
     def test_passing_valid_key(self):
         input_data = {'marketing_name': 'My super cool company'}

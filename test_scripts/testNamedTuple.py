@@ -2,7 +2,7 @@ from collections import namedtuple
 
 Mapping = namedtuple('Mapping', 'create_customer update_customer')
 
-api_mapping = Mapping('/customer/create','/customer/update')
+api_mapping = Mapping('/customer/create', '/customer/update')
 
 print(api_mapping)
 print("\n")

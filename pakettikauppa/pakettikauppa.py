@@ -206,7 +206,7 @@ class Pakettikauppa:
         self.logger.debug("Response status code={}".format(res_status_code))
         # self.logger.debug("Response content={}".format(res_obj.content))
 
-        if res_status_code != 200:
+        if res_status_code != 200 and res_status_code != 201:
             error_text = res_obj.text
             self.logger.error("Unexpected response text={}".format(error_text))
             raise PakettikauppaException(error_text)

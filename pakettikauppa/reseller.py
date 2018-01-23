@@ -7,13 +7,15 @@ The module provides below functionality:
     4. De-activate customer
 
 """
+from __future__ import absolute_import
+
 __version__ = '0.1'
 __author__ = 'Porntip Chaibamrung'
 
 import re
 import logging
 from time import time
-from pakettikauppa.pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
+from .pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 
 class PkReseller(Pakettikauppa):
@@ -51,7 +53,8 @@ class PkReseller(Pakettikauppa):
         """
         self._isInTestMode = is_test_mode
 
-        super().__init__(self._isInTestMode)
+        # super().__init__(self._isInTestMode) # for Python3 only
+        super(PkReseller, self).__init__(self._isInTestMode)
 
         self.mylogger = logging.getLogger(__name__)
 
@@ -104,7 +107,7 @@ class PkReseller(Pakettikauppa):
             api_secret (string): secret key
         """
         _api_suffix = self.get_api_suffix(api_name)
-        _api_config = super().get_api_config(_api_suffix, self._api_key, self._secret)
+        _api_config = super(__class__, self).get_api_config(_api_suffix, self._api_key, self._secret)
         return _api_config
 
     def clean_up_phone_data(self, phone_string=None):
@@ -142,7 +145,7 @@ class PkReseller(Pakettikauppa):
         input_req_data['hash'] = digest_string
         self.mylogger.debug("Hash input data={}".format(input_req_data))
 
-        res_obj = super().send_request('POST', _api_config['api_post_url'], input_req_data)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], input_req_data)
         return self.parse_res_to_list(res_obj)
 
     def create_customer(self, **kwargs):
@@ -156,7 +159,7 @@ class PkReseller(Pakettikauppa):
 
         _hInputData = self.get_create_customer_req_data(**kwargs)
 
-        res_obj = super().send_request('POST', h_config['api_post_url'], _hInputData)
+        res_obj = super(__class__, self).send_request('POST', h_config['api_post_url'], _hInputData)
 
         return self.parse_res_to_list(res_obj)
 
@@ -277,7 +280,7 @@ class PkReseller(Pakettikauppa):
             self.mylogger.debug("No update request data found")
             return None
         else:
-            res_obj = super().send_request('POST', _api_config['api_post_url'], update_req_data)
+            res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], update_req_data)
             return self.parse_res_to_list(res_obj)
 
     def get_update_customer_req_data(self, customer_id, **kwargs):
@@ -339,5 +342,5 @@ class PkReseller(Pakettikauppa):
         input_req_data['hash'] = digest_string
         self.mylogger.debug("Hash de-activate input data={}".format(input_req_data))
 
-        res_obj = super().send_request('POST', _api_config['api_post_url'], input_req_data)
+        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], input_req_data)
         return self.parse_res_to_list(res_obj)
