@@ -22,11 +22,10 @@ def check_api_name(in_function):
     @wraps(in_function)
     def decorated_function(self, param):
         if param is None or param == '':
-            raise PakettikauppaException("API name", "Missing API name")
+            raise PakettikauppaException("Missing API name")
 
-        self.logger.debug("API name variable type={}".format(type(param).__name__))
         if str(type(param).__name__) != 'str':
-            raise PakettikauppaException(param, "Invalid parameter type")
+            raise PakettikauppaException("Invalid parameter type")
         else:
             return in_function(self, param)
 

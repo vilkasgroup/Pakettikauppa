@@ -25,6 +25,7 @@ from .pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 if sys.version_info < (3, 0):
     from six.moves import reload_module
+
     reload_module(sys)
     sys.setdefaultencoding('utf8')
 
@@ -125,11 +126,11 @@ class PkMerchant(Pakettikauppa):
                 self._secret = secret
         else:
             if api_key is None:
-                raise PakettikauppaException("API key", "Missing API key")
+                raise PakettikauppaException("Missing API key")
             else:
                 self._api_key = api_key
             if secret is None:
-                raise PakettikauppaException("Secret key", "Missing API secret key")
+                raise PakettikauppaException("Missing API secret key")
             else:
                 self._secret = secret
 
@@ -143,10 +144,8 @@ class PkMerchant(Pakettikauppa):
         if api_name in self._api_mapping:
             return str(self._api_mapping[api_name])
         else:
-            raise PakettikauppaException(
-                KeyError,
-                "Invalid API name. Possible value are 'get_shipping_method_list', 'get_additional_service_list'"
-            )
+            raise PakettikauppaException("Invalid API name. Possible value are 'get_shipping_method_list', \
+            'get_additional_service_list'")
 
     def get_api_config(self, api_name=None):
         """
@@ -991,23 +990,23 @@ class PkMerchant(Pakettikauppa):
             raise KeyError("Missing Shipment.Sender key")
 
         if 'Sender.Name1' and 'Sender.Addr1' and 'Sender.Postcode' and 'Sender.City' and 'Sender.Country' \
-                and 'Sender.Vatcode' and 'Sender.Email' not in kwargs['eChannel']['Shipment']['Shipment.Sender']:
+            and 'Sender.Vatcode' and 'Sender.Email' not in kwargs['eChannel']['Shipment']['Shipment.Sender']:
             raise KeyError("Missing mandatory key in Shipment.Sender element")
 
         if 'Shipment.Recipient' not in kwargs['eChannel']['Shipment']:
             raise KeyError("Missing Shipment.Recipient key")
 
         if 'Recipient.Name1' and 'Recipient.Addr1' and 'Recipient.Postcode' and 'Recipient.City' \
-                and 'Recipient.Country' and 'Recipient.Phone' and 'Recipient.Email' not in \
-                kwargs['eChannel']['Shipment']['Shipment.Recipient']:
+            and 'Recipient.Country' and 'Recipient.Phone' and 'Recipient.Email' not in \
+            kwargs['eChannel']['Shipment']['Shipment.Recipient']:
             raise KeyError("Missing mandatory key in Shipment.Recipient element")
 
         if 'Shipment.Consignment' not in kwargs['eChannel']['Shipment']:
             raise KeyError("Missing Shipment.Consignment key")
 
         if 'Consignment.Reference' and 'Consignment.Product' and 'Consignment.Contentcode' and \
-                'Consignment.Invoicenumber' and 'Consignment.Currency' and 'Consignment.Parcel' not in \
-                kwargs['eChannel']['Shipment']['Shipment.Consignment']:
+            'Consignment.Invoicenumber' and 'Consignment.Currency' and 'Consignment.Parcel' not in \
+            kwargs['eChannel']['Shipment']['Shipment.Consignment']:
             raise KeyError("Missing mandatory key in Shipment.Consignment element")
 
         return
@@ -1024,7 +1023,7 @@ class PkMerchant(Pakettikauppa):
             raise TypeError("Invalid data type for ROUTING key")
 
         if 'Routing.Account' and 'Routing.Id' and 'Routing.Key' and 'Routing.Name' and 'Routing.Time' not in \
-                kwargs['eChannel']['ROUTING']:
+            kwargs['eChannel']['ROUTING']:
             raise KeyError("Missing mandatory key in ROUTING element")
         return
 
