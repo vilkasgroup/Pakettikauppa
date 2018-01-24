@@ -8,7 +8,7 @@ python:
 
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox-travis
+install: pip install -U tox-travis python-coveralls
 
 # command to run tests, e.g. python setup.py test
 script: tox
@@ -25,3 +25,8 @@ deploy:
     tags: true
     repo: vilkasgroup/Pakettikauppa
     python: 2.7
+
+after_success:
+  - coverage run --source pakettikauppa setup.py test
+  - coverage report
+  - coveralls
