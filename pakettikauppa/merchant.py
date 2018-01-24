@@ -20,7 +20,8 @@ from base64 import b64decode
 from time import time
 from datetime import datetime
 from xml.dom import minidom
-from xml.etree import ElementTree as ET
+#from xml.etree import ElementTree as ET
+from lxml import etree as ET
 from .pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 #if sys.version_info < (3, 0):
@@ -1056,10 +1057,13 @@ class PkMerchant(Pakettikauppa):
         # for Python2.7
         # tmp_string = ET.tostring(root).decode('utf-8')
         self.mylogger.debug("root XML object = {}".format(root))
-        tmp_string = ET.tostring(root, encoding="utf-8")
-        xml_string = minidom.parseString(tmp_string).toprettyxml(indent="   ", encoding="utf-8")
-        self.mylogger.debug("XML string = {}".format(xml_string))
-        return xml_string
+
+        return ET.tostring(root, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+
+#        tmp_string = ET.tostring(root, encoding="utf-8")
+#        xml_string = minidom.parseString(tmp_string).toprettyxml(indent="   ", encoding="utf-8")
+#        self.mylogger.debug("XML string = {}".format(xml_string))
+#        return xml_string
 
     def _create_routing_elements(self, root_element, **kwargs):
         """
