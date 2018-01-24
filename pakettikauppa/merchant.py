@@ -14,7 +14,7 @@ from __future__ import absolute_import
 __version__ = '0.1'
 __author__ = 'Porntip Chaibamrung'
 
-import sys
+#import sys
 import logging
 from base64 import b64decode
 from time import time
@@ -23,11 +23,14 @@ from xml.dom import minidom
 from xml.etree import ElementTree as ET
 from .pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
-if sys.version_info < (3, 0):
-    from six.moves import reload_module
-
-    reload_module(sys)
-    sys.setdefaultencoding('utf8')
+#if sys.version_info < (3, 0):
+#    try:
+#        from six.moves import reload_module
+#    except Exception:
+#        raise ImportError("Unable to import reload_module")
+#    else:
+#        reload_module(sys)
+#        sys.setdefaultencoding('utf8')
 
 
 def decode_pdf_content(encoded_pdf_content):
@@ -1052,7 +1055,8 @@ class PkMerchant(Pakettikauppa):
 
         # for Python2.7
         # tmp_string = ET.tostring(root).decode('utf-8')
-        tmp_string = ET.tostring(root)
+        self.mylogger.debug("root XML object = {}".format(root))
+        tmp_string = ET.tostring(root, encoding="utf-8")
         xml_string = minidom.parseString(tmp_string).toprettyxml(indent="   ", encoding="utf-8")
         self.mylogger.debug("XML string = {}".format(xml_string))
         return xml_string
