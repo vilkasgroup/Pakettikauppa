@@ -6,15 +6,15 @@ Pakettikauppa
 .. image:: https://img.shields.io/pypi/v/pakettikauppa.svg
         :target: https://pypi.python.org/pypi/pakettikauppa
 
-.. image:: https://img.shields.io/travis/atipi/pakettikauppa.svg
-        :target: https://travis-ci.org/atipi/pakettikauppa
+.. image:: https://img.shields.io/travis/vilkasgroup/Pakettikauppa.svg
+        :target: https://travis-ci.org/vilkasgroup/Pakettikauppa
 
 .. image:: https://readthedocs.org/projects/pakettikauppa/badge/?version=latest
         :target: https://pakettikauppa.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/atipi/pakettikauppa/shield.svg
-     :target: https://pyup.io/repos/github/atipi/pakettikauppa/
+.. image:: https://pyup.io/repos/github/vilkasgroup/Pakettikauppa/shield.svg
+     :target: https://pyup.io/repos/github/vilkasgroup/Pakettikauppa/
      :alt: Updates
 
 
