@@ -1,2 +1,2 @@
-requests>=2.18.14
+requests>=2.7.0
 
