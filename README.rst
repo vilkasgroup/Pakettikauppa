@@ -14,8 +14,12 @@ Pakettikauppa
         :alt: Documentation Status
 
 .. image:: https://pyup.io/repos/github/vilkasgroup/Pakettikauppa/shield.svg
-     :target: https://pyup.io/repos/github/vilkasgroup/Pakettikauppa/
-     :alt: Updates
+        :target: https://pyup.io/repos/github/vilkasgroup/Pakettikauppa/
+        :alt: Updates
+
+.. image:: https://coveralls.io/repos/github/vilkasgroup/Pakettikauppa/badge.svg?branch=master
+     :target: https://coveralls.io/github/vilkasgroup/Pakettikauppa?branch=master
+     :alt: Coveralls status
 
 
 Client python modules for Pakettikauppa integration
