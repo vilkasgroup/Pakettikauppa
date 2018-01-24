@@ -107,7 +107,12 @@ class PkReseller(Pakettikauppa):
             api_secret (string): secret key
         """
         _api_suffix = self.get_api_suffix(api_name)
-        _api_config = super(__class__, self).get_full_api_config(_api_suffix, self._api_key, self._secret)
+        _api_post_url = super(PkReseller, self).get_post_url(_api_suffix)
+        _api_config = {
+            'api_post_url': _api_post_url,
+            'api_key': self._api_key,
+            'api_secret': self._secret
+        }
         return _api_config
 
     def clean_up_phone_data(self, phone_string=None):
@@ -145,7 +150,7 @@ class PkReseller(Pakettikauppa):
         input_req_data['hash'] = digest_string
         self.mylogger.debug("Hash input data={}".format(input_req_data))
 
-        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], input_req_data)
+        res_obj = super(PkReseller, self).send_request('POST', _api_config['api_post_url'], input_req_data)
         return self.parse_res_to_list(res_obj)
 
     def create_customer(self, **kwargs):
@@ -159,7 +164,7 @@ class PkReseller(Pakettikauppa):
 
         _hInputData = self.get_create_customer_req_data(**kwargs)
 
-        res_obj = super(__class__, self).send_request('POST', h_config['api_post_url'], _hInputData)
+        res_obj = super(PkReseller, self).send_request('POST', h_config['api_post_url'], _hInputData)
 
         return self.parse_res_to_list(res_obj)
 
@@ -280,7 +285,7 @@ class PkReseller(Pakettikauppa):
             self.mylogger.debug("No update request data found")
             return None
         else:
-            res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], update_req_data)
+            res_obj = super(PkReseller, self).send_request('POST', _api_config['api_post_url'], update_req_data)
             return self.parse_res_to_list(res_obj)
 
     def get_update_customer_req_data(self, customer_id, **kwargs):
@@ -342,5 +347,5 @@ class PkReseller(Pakettikauppa):
         input_req_data['hash'] = digest_string
         self.mylogger.debug("Hash de-activate input data={}".format(input_req_data))
 
-        res_obj = super(__class__, self).send_request('POST', _api_config['api_post_url'], input_req_data)
+        res_obj = super(PkReseller, self).send_request('POST', _api_config['api_post_url'], input_req_data)
         return self.parse_res_to_list(res_obj)

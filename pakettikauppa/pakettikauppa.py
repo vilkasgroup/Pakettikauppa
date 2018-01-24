@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import requests
 import logging
+import sys
 from functools import wraps
 
 
@@ -37,7 +38,7 @@ class PakettikauppaException(Exception):
     pass
 
 
-class Pakettikauppa:
+class Pakettikauppa(object):
     """
     Base class for Pakettikauppa integration.
 
@@ -59,9 +60,9 @@ class Pakettikauppa:
         self.set_logger()
 
         if is_test_mode == 1:
-            Pakettikauppa._base_api_end_point = 'https://apitest.pakettikauppa.fi'
+            self._base_api_end_point = 'https://apitest.pakettikauppa.fi'
         else:
-            Pakettikauppa._base_api_end_point = 'https://api.pakettikauppa.fi'
+            self._base_api_end_point = 'https://api.pakettikauppa.fi'
 
     def set_logger(self):
         """
@@ -79,31 +80,19 @@ class Pakettikauppa:
         """
         return self.logger
 
-    def get_full_api_config(self, api_suffix=None, api_key=None, secret_key=None):
+    def get_post_url(self, api_suffix=None):
         """
-        Get API configuration data.
+        Get API post URL address
 
         :param api_suffix: string of API suffix
-        :param api_key: API key string
-        :param secret_key: secret key string
 
-        :return api_config: dictionary of API configuration which contains following keys
-            api_config:
-            api_post_url (string): Post URL
-            api_key (string): API key
-            api_secret (string) : API secret
+        :return api_post_url (string): Post URL
         """
         if api_suffix is None:
             raise PakettikauppaException("Missing API suffix")
 
-        _api_post_url = Pakettikauppa._base_api_end_point + api_suffix
-        _api_config = {
-            'api_post_url': _api_post_url,
-            'api_key': api_key,
-            'api_secret': secret_key
-        }
-
-        return _api_config
+        _api_post_url = self._base_api_end_point + api_suffix
+        return _api_post_url
 
     def get_api_end_point(self):
         """
@@ -134,8 +123,12 @@ class Pakettikauppa:
         plain_text = '&'.join(map(str, my_lst))
         self.logger.debug("Plain text={}".format(plain_text))
 
-        message_bytes = bytes(plain_text, 'utf-8')
-        secret_bytes = bytes(secret_key, 'utf-8')
+        if sys.version_info < (3, 0):
+            message_bytes = bytes(plain_text)
+            secret_bytes = bytes(secret_key)
+        else:
+            message_bytes = bytes(plain_text, 'utf-8')
+            secret_bytes = bytes(secret_key, 'utf-8')
 
         hash_string = hmac.new(secret_bytes, message_bytes, hashlib.sha256)
 

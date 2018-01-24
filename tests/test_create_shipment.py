@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from unittest import TestCase, main
 from pakettikauppa.merchant import PkMerchant
@@ -47,7 +48,13 @@ class TestCreateShipment(TestCase):
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
-                    'ROUTING': {},
+                    'ROUTING': {
+                        'Routing.Account': 'test',
+                        'Routing.Id': '',
+                        'Routing.Key': '',
+                        'Routing.Name': '',
+                        'Routing.Time': '',
+                    },
                     'InvalidKey': 'Value'
                 }
             })

@@ -1,6 +1,6 @@
-/pakettikauppa.rst
-/pakettikauppa.*.rst
-/modules.rst
+.pakettikauppa.rst
+.pakettikauppa.*.rst
+.modules.rst
 
 # Sphinx generated files
 _build/

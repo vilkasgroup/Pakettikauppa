@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from unittest import TestCase, main
 from pakettikauppa.merchant import PkMerchant

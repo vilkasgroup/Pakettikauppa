@@ -1,12 +1,20 @@
+import logging
 import unittest
 from pakettikauppa.reseller import PkReseller
 
+logging.basicConfig(
+    level=logging.DEBUG,
+)
+
 
 class TestUpdateCustomer(unittest.TestCase):
-    a_reseller = PkReseller(1)
+    @classmethod
+    def setUpClass(cls):
+        cls.a_reseller = PkReseller(1)
+        cls.logger = logging.getLogger(__name__)
 
     def test_skip_passing_customer_id(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(Exception) as e:
             self.a_reseller.update_customer()
 
         # with self.assertRaises(Exception) as context:
@@ -14,11 +22,13 @@ class TestUpdateCustomer(unittest.TestCase):
         #    print(context.exception)
         #
         # self.assertTrue('This is broken' in str(context.exception))
+
+        self.logger.debug("Exception message = {}".format(e.exception))
+
     def test_passing_empty_customer_id(self):
-        print("Test passing empty string to customer id parameter")
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception) as e:
             self.a_reseller.update_customer('')
-        print(Exception)
+        self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_passing_wrong_args_type(self):
         with self.assertRaises(TypeError):
