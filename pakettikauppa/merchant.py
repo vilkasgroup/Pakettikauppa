@@ -16,6 +16,7 @@ __author__ = 'Porntip Chaibamrung'
 
 #import sys
 import logging
+from six import string_types
 from base64 import b64decode
 from time import time
 from datetime import datetime
@@ -1171,7 +1172,7 @@ class PkMerchant(Pakettikauppa):
                     raise Exception(KeyError("Invalid key"))
 
             child = ET.SubElement(address_root_element, key)
-            child.text = str(kwargs[key])
+            child.text = kwargs[key]
 
         return
 
@@ -1441,7 +1442,7 @@ class PkMerchant(Pakettikauppa):
             else:
                 # expected string value from kwargs[key]
                 # self.mylogger.debug("Key for creating Parcel elements={}, Value={}".format(key, kwargs[key]))
-                if type(kwargs[key]).__name__ != 'str':
+                if not isinstance(kwargs[key], string_types):
                     raise PakettikauppaException("Invalid value in key={}".format(key))
 
                 if key == 'Parcel.Packagetype':
@@ -1776,7 +1777,8 @@ def create_additional_info_element(root, **dict_data):
     text_value = dict_data['AdditionalInfo.Text']
     if text_value is None:
         return None
-    if type(text_value).__name__ != 'str':
+
+    if not isinstance(text_value, string_types):
         raise PakettikauppaException("Expect string value in 'AdditionalInfo.Text' parameter")
 
     additional_info_root_element = ET.SubElement(root, "Consignment.AdditionalInfo")
