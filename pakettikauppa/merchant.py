@@ -346,7 +346,7 @@ class PkMerchant(Pakettikauppa):
             'Content-Type': 'application/xml'
         }
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
-        xml_res_string = res_obj.text
+        xml_res_string = res_obj.content
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
 
         return self.parse_xml_create_shipment_res(xml_res_string)
@@ -377,7 +377,7 @@ class PkMerchant(Pakettikauppa):
             'Content-Type': 'application/xml'
         }
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
-        xml_res_string = res_obj.text
+        xml_res_string = res_obj.content
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
 
         return self.parse_xml_create_shipment_res(xml_res_string)
@@ -1537,7 +1537,7 @@ class PkMerchant(Pakettikauppa):
 
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
 
-        xml_res_string = res_obj.text
+        xml_res_string = res_obj.content
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
 
         return self.parse_xml_get_shipping_label_res(xml_res_string)
