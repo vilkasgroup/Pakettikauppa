@@ -23,5 +23,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: atipi/pakettikauppa
+    repo: vilkasgroup/Pakettikauppa
     python: 2.7

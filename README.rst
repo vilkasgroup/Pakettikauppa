@@ -28,7 +28,18 @@ Client python modules for Pakettikauppa integration
 Features
 --------
 
-* TODO
+For merchants
+* Search pickup points
+* Create shipment included shipping label
+* Get shipping label
+* Get shipping status
+* Get list of additional services
+* Get list of shipping methods
+
+For re-seller
+* Create customer
+* Get list of customers
+* Update customer data
 
 Credits
 ---------
