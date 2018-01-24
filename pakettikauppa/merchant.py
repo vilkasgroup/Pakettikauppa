@@ -1487,7 +1487,7 @@ class PkMerchant(Pakettikauppa):
         _api_config = self.get_api_config('get_shipment_status')
         dict_req_data = self.get_shipment_status_req_data(tracking_code)
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], dict_req_data)
-        self.logger.debug("[GetShipment] Response={}".format(res_obj.text))
+        self.logger.debug("[GetShipment] Response={}".format(res_obj.content))
         return
 
     def get_shipment_status_req_data(self, tracking_code):
