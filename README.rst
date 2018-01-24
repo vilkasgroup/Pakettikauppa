@@ -29,6 +29,7 @@ Features
 --------
 
 For merchants
+
 * Search pickup points
 * Create shipment included shipping label
 * Get shipping label
@@ -37,6 +38,7 @@ For merchants
 * Get list of shipping methods
 
 For re-seller
+
 * Create customer
 * Get list of customers
 * Update customer data
