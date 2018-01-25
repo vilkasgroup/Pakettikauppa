@@ -17,14 +17,14 @@ class TestSearchPickupPoint(TestCase):
     def test_empty_parameter(self):
         with self.assertRaises(Exception) as e:
             self._merchant.search_pickup_points(**{})
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_empty_postal_code(self):
         with self.assertRaises(ValueError) as e:
             self._merchant.search_pickup_points(**{
                 'postal_code': ''
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         self.assertEqual(str(e.exception), "Require postal code data")
 
     def test_search_pickup_points_with_postal_code_only(self):
@@ -48,6 +48,7 @@ class TestSearchPickupPoint(TestCase):
         }
         list_data = self._merchant.search_pickup_points(**input_params)
         self.assertIsNotNone(list_data)
+
 
 if __name__ == '__main__':
     main(verbosity=2)

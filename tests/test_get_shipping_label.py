@@ -23,14 +23,14 @@ class TestGetShippingLabel(TestCase):
     def test_empty__input_params(self):
         with self.assertRaises(Exception) as e:
             self._merchant.get_shipping_label(**{})
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_root_element(self):
         with self.assertRaises(KeyError) as e:
             self._merchant.get_shipping_label(**{
                 'InvalidKey': 'KeyValue'
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'eChannel key is missing'")
 
     def test_missing_routing_element(self):
@@ -40,7 +40,7 @@ class TestGetShippingLabel(TestCase):
                     'InvalidKey': 'Value'
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'ROUTING key is missing'")
 
     def test_empty_routing(self):
@@ -50,7 +50,7 @@ class TestGetShippingLabel(TestCase):
                     'ROUTING': {},
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         self.assertEqual(str(e.exception), "Missing routing data")
 
     def test_wrong_data_type_routing(self):
@@ -60,7 +60,7 @@ class TestGetShippingLabel(TestCase):
                     'ROUTING': 'test',
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_keys_in_routing(self):
         with self.assertRaises(KeyError) as e:
@@ -71,7 +71,7 @@ class TestGetShippingLabel(TestCase):
                     },
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_printlabel_element(self):
         with self.assertRaises(KeyError) as e:
@@ -86,7 +86,7 @@ class TestGetShippingLabel(TestCase):
                     },
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_printlabel_data(self):
         with self.assertRaises(TypeError) as e:
@@ -102,7 +102,7 @@ class TestGetShippingLabel(TestCase):
                     'PrintLabel': ''
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_response_format_key(self):
         with self.assertRaises(KeyError) as e:
@@ -120,7 +120,7 @@ class TestGetShippingLabel(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_invalid_response_format_data(self):
         with self.assertRaises(ValueError) as e:
@@ -138,7 +138,7 @@ class TestGetShippingLabel(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_content_key(self):
         with self.assertRaises(KeyError) as e:
@@ -156,7 +156,7 @@ class TestGetShippingLabel(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_tracking_code_key(self):
         with self.assertRaises(KeyError) as e:
@@ -177,7 +177,7 @@ class TestGetShippingLabel(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_get_shipping_label(self):
         req_input = {

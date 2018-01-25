@@ -24,14 +24,14 @@ class TestPkReseller(unittest.TestCase):
     def test_empty_parameter(self):
         with self.assertRaises(Exception) as e:
             self._reseller.create_customer(**{})
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_too_short_parameter(self):
         with self.assertRaises(KeyError) as e:
             self._reseller.create_customer(**{
                 'name': 'Vilkas Group Oy Test',
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_invalid_key(self):
         with self.assertRaises(KeyError) as e:
@@ -53,7 +53,7 @@ class TestPkReseller(unittest.TestCase):
                 'customer_service_phone': '',
                 'customer_service_email': '',
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_mandatory_field(self):
         with self.assertRaises(ValueError) as e:
@@ -75,7 +75,7 @@ class TestPkReseller(unittest.TestCase):
                 'customer_service_phone': '',
                 'customer_service_email': '',
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_invalid_payment_service_provider(self):
         _req_data = {
@@ -99,7 +99,7 @@ class TestPkReseller(unittest.TestCase):
         # self.fail()
         with self.assertRaises(ValueError) as e:
             self._reseller.create_customer(**_req_data)
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_checkout_id(self):
         _req_data = {
@@ -123,7 +123,7 @@ class TestPkReseller(unittest.TestCase):
         # self.fail()
         with self.assertRaises(ValueError) as e:
             self._reseller.create_customer(**_req_data)
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_create_customer(self):
         _req_data = {
@@ -146,7 +146,7 @@ class TestPkReseller(unittest.TestCase):
         }
         res_data = self._reseller.create_customer(**_req_data)
         customer_id = res_data['customer_id']
-        self.logger.debug("Created customer id={}".format(customer_id))
+        # self.logger.debug("Created customer id={}".format(customer_id))
 
         self.assertIsNotNone(customer_id) and self.assertIsNot(customer_id, '')
 

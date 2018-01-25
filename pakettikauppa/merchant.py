@@ -24,6 +24,9 @@ from .pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 
 def decode_pdf_content(encoded_pdf_content):
+    if encoded_pdf_content is None or encoded_pdf_content == '':
+        raise ValueError("No PDF content data")
+
     decoded_pdf_content = b64decode(encoded_pdf_content)
     return decoded_pdf_content
 

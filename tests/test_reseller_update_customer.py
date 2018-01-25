@@ -22,13 +22,13 @@ class TestUpdateCustomer(unittest.TestCase):
         #    print(context.exception)
         #
         # self.assertTrue('This is broken' in str(context.exception))
-
-        self.logger.debug("Exception message = {}".format(e.exception))
+        #
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_passing_empty_customer_id(self):
         with self.assertRaises(Exception) as e:
             self.a_reseller.update_customer('')
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_passing_wrong_args_type(self):
         with self.assertRaises(TypeError):

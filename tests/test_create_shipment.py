@@ -25,14 +25,14 @@ class TestCreateShipment(TestCase):
     def test_empty_parameter(self):
         with self.assertRaises(Exception) as e:
             self._merchant.create_shipment(**{})
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_root_element(self):
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'InvalidKey': 'KeyValue'
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'eChannel key is missing'")
 
     def test_missing_routing_element(self):
@@ -42,7 +42,7 @@ class TestCreateShipment(TestCase):
                     'InvalidKey': 'Value'
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'ROUTING key is missing'")
 
     def test_missing_shipment_element(self):
@@ -59,7 +59,7 @@ class TestCreateShipment(TestCase):
                     'InvalidKey': 'Value'
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'Shipment key is missing'")
 
     def test_empty_routing(self):
@@ -70,7 +70,7 @@ class TestCreateShipment(TestCase):
                     'Shipment': {}
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         self.assertEqual(str(e.exception), "Missing routing data")
 
     def test_wrong_data_type_routing(self):
@@ -81,7 +81,7 @@ class TestCreateShipment(TestCase):
                     'Shipment': {}
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "Missing routing data")
 
     def test_missing_keys_in_routing(self):
@@ -94,7 +94,7 @@ class TestCreateShipment(TestCase):
                     'Shipment': {}
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_sender(self):
         with self.assertRaises(KeyError) as e:
@@ -112,7 +112,7 @@ class TestCreateShipment(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'Missing Shipment.Sender key'")
 
     def test_missing_sender_info(self):
@@ -131,7 +131,7 @@ class TestCreateShipment(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_recipient(self):
         with self.assertRaises(KeyError) as e:
@@ -158,7 +158,7 @@ class TestCreateShipment(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'Missing Shipment.Recipient key'")
 
     def test_missing_recipient_info(self):
@@ -187,7 +187,7 @@ class TestCreateShipment(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'Missing mandatory key in Shipment.Recipient element'")
 
     def test_missing_consignment(self):
@@ -224,7 +224,7 @@ class TestCreateShipment(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'Missing Shipment.Consignment key'")
 
     def test_missing_consignment_info(self):
@@ -262,7 +262,7 @@ class TestCreateShipment(TestCase):
                     }
                 }
             })
-        self.logger.debug("Exception message = {}".format(e.exception))
+        # self.logger.debug("Exception message = {}".format(e.exception))
         # self.assertEqual(str(e.exception), "'Missing mandatory key in Shipment.Consignment element'")
 
     def test_create_with_test_req_data(self):
