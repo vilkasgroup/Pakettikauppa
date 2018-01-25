@@ -10,6 +10,7 @@ name = "pypi"
 sphinx = "*"
 tox = "*"
 twine = "*"
+six = "*"
 
 
 [dev-packages]

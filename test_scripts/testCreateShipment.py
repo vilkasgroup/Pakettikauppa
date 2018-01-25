@@ -160,15 +160,15 @@ def create_shipment_input_data(merchant_object):
 if __name__ == '__main__':
     # This uses testing data set
     # m = PkMerchant(1)
-    # m.get_create_shipment_test_req_data()
-
     m = PkMerchant(1, API_KEY, SECRET)
-    req_input = create_shipment_input_data(m)
-    print("request input: {}".format(req_input))
-    print("\n")
 
     _api_config = m.get_api_config('create_shipment')
     print("Hash config: {}".format(_api_config))
+    print("\n")
+
+    #req_input = create_shipment_input_data(m)
+    req_input = m.get_create_shipment_test_req_data()
+    print("request input: {}".format(req_input))
     print("\n")
 
     # For displaying XML input data

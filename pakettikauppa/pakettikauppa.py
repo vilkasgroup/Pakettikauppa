@@ -11,6 +11,7 @@ import hmac
 import requests
 import logging
 import sys
+from six import string_types
 from functools import wraps
 
 
@@ -24,7 +25,8 @@ def check_api_name(in_function):
         if param is None or param == '':
             raise PakettikauppaException("Missing API name")
 
-        if str(type(param).__name__) != 'str':
+        # if str(type(param).__name__) != 'str':
+        if not isinstance(param, string_types):
             raise PakettikauppaException("Invalid parameter type")
         else:
             return in_function(self, param)
@@ -110,7 +112,7 @@ class Pakettikauppa(object):
         :return digest_string: digest string
         """
         if kwargs is None or len(kwargs) == 0:
-            raise Exception(KeyError("Expect input parameters"))
+            raise KeyError("Expect input parameters")
 
         secret_key = str(secret_key)
         self.logger.debug("Secret key: {}".format(secret_key))
@@ -123,7 +125,7 @@ class Pakettikauppa(object):
         self.logger.debug("Plain text={}".format(plain_text))
 
         if sys.version_info < (3, 0):
-            plain_text.decode('utf-8')
+            # plain_text.decode('utf-8')
             message_bytes = bytes(plain_text)
             secret_bytes = bytes(secret_key)
         else:
@@ -147,13 +149,13 @@ class Pakettikauppa(object):
         :return digest_string: digest string
         """
         if api_key is None or api_key == '':
-            raise Exception(ValueError("Need API key parameter"))
+            raise ValueError("Need API key parameter")
 
         if secret_key is None or secret_key == '':
-            raise Exception(ValueError("Need Secret key parameter"))
+            raise ValueError("Need Secret key parameter")
 
         if routing_id is None or routing_id == '':
-            raise Exception(ValueError("Need routing id parameter"))
+            raise ValueError("Need routing id parameter")
 
         routing_key_data = str(api_key) + str(routing_id) + str(secret_key)
         self.logger.debug("Routing key data={}".format(routing_key_data))
@@ -172,7 +174,7 @@ class Pakettikauppa(object):
         :return res_obj: response object
         """
         if _api_post_url is None or _api_post_url == '':
-            raise Exception(ValueError("Need post URL data"))
+            raise ValueError("Need post URL data")
 
         if headers is None:
             headers = {

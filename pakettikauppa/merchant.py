@@ -9,7 +9,7 @@ The module provides below functionality:
     5. Create shipment
     6. Get shipping label
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 __version__ = '0.1'
 __author__ = 'Porntip Chaibamrung'
@@ -19,8 +19,6 @@ from six import string_types
 from base64 import b64decode
 from time import time
 from datetime import datetime
-from xml.dom import minidom
-#from xml.etree import ElementTree as ET
 from lxml import etree as ET
 from .pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
@@ -325,10 +323,10 @@ class PkMerchant(Pakettikauppa):
 
         # xml_req_data = None
         if self._isInTestMode:
-            if kwargs is not None:
+            if kwargs is not None and len(kwargs) > 0:
                 xml_req_data = self.get_xml_shipment_req_data(**kwargs)
             else:
-                xml_req_data = self.get_create_shipment_test_req_data()
+                raise Exception("Require input parameters")
         else:
             xml_req_data = self.get_xml_shipment_req_data(**kwargs)
 
@@ -434,7 +432,7 @@ class PkMerchant(Pakettikauppa):
         :return dict_data: dictionary of request data
         """
         dict_data = self.get_create_shipment_test_data()
-        return self.get_xml_shipment_req_data(**dict_data)
+        return dict_data
 
     def get_simple_test_data_create_shipment(self):
         """
@@ -483,7 +481,7 @@ class PkMerchant(Pakettikauppa):
                     'InvoiceNumber': order_alias,
                     'MerchandiseValue': 150,  # Order->get('PR_Merchandisevalue')
                     'Currency': 'EUR',
-                    'AdditionalInfoText': "Order no.: 1107-1 -- Reference no.: 284554",
+                    'AdditionalInfoText': "å Order no.: 1107-1 -- Reference no.: 284554",
                     'AdditionalServices': [
                         {
                             'ServiceCode': '2106',  # pickup point service
@@ -1046,7 +1044,7 @@ class PkMerchant(Pakettikauppa):
         self._create_shipment_elements(root, **kwargs['eChannel']['Shipment'])
 
         xml_string = ET.tostring(root, pretty_print=True, xml_declaration=True, encoding="UTF-8")
-        self.mylogger.debug("XML string = {}".format(xml_string))
+        self.mylogger.debug("XML string = {}".format(xml_string.decode('utf-8')))
         return xml_string
 
     def _create_routing_elements(self, root_element, **kwargs):
@@ -1066,14 +1064,14 @@ class PkMerchant(Pakettikauppa):
         """
         routing_root = ET.SubElement(root_element, "ROUTING")
         account_element = ET.SubElement(routing_root, "Routing.Account")
-        account_element.text = str(kwargs['Routing.Account'].decode())
+        account_element.text = str(kwargs['Routing.Account'])
         routing_id_element = ET.SubElement(routing_root, "Routing.Id")
-        routing_id_element.text = str(kwargs['Routing.Id'].decode('utf-8'))
+        routing_id_element.text = str(kwargs['Routing.Id'])
         routing_key_element = ET.SubElement(routing_root, "Routing.Key")
         digest_string = self.get_md5_hash(self._api_key, self._secret, kwargs['Routing.Id'])
-        routing_key_element.text = str(digest_string.decode('utf-8'))
+        routing_key_element.text = digest_string
         routing_name_element = ET.SubElement(routing_root, "Routing.Name")
-        routing_name_element.text = str(kwargs['Routing.Name'].decode('utf-8'))
+        routing_name_element.text = str(kwargs['Routing.Name'])
         routing_time_element = ET.SubElement(routing_root, "Routing.Time")
         routing_time_element.text = str(kwargs['Routing.Time'])
 
@@ -1150,10 +1148,10 @@ class PkMerchant(Pakettikauppa):
         for key in kwargs:
             if address_type == "recipient":
                 if key not in self._accept_recipient_keys:
-                    raise Exception(KeyError("Invalid key"))
+                    raise KeyError("Invalid key")
             else:
                 if key not in self._accept_sender_keys:
-                    raise Exception(KeyError("Invalid key"))
+                    raise KeyError("Invalid key")
 
             child = ET.SubElement(address_root_element, key)
             child.text = kwargs[key]
@@ -1181,10 +1179,10 @@ class PkMerchant(Pakettikauppa):
         :return:
         """
         if kwargs is None:
-            raise Exception(KeyError("Require parameters"))
+            raise KeyError("Require parameters")
 
         if len(kwargs) == 0:
-            raise Exception(KeyError("Input parameter cann't be empty."))
+            raise KeyError("Input parameter cann't be empty.")
 
         self.logger.debug("[_create_shipment_consignment_element] KWARGS={}".format(kwargs))
 
@@ -1239,7 +1237,7 @@ class PkMerchant(Pakettikauppa):
             return
 
         if type(list_services).__name__ != 'list':
-            raise Exception(ValueError("Expected data type list"))
+            raise ValueError("Expected data type list")
 
         for dict_data in list_services:
             additional_service_root_element = ET.SubElement(root, "Consignment.AdditionalService")
@@ -1256,9 +1254,9 @@ class PkMerchant(Pakettikauppa):
                         for key2 in dict_data[key]:
                             # self.mylogger.debug("Key2={}, Value={}".format(key2, dict_data[key][key2]))
                             if key2 == 'value':
-                                child.text = str(dict_data[key][key2].decode('utf-8'))
+                                child.text = str(dict_data[key][key2])
                             else:
-                                child.set(key2, str(dict_data[key][key2].decode('utf-8')))
+                                child.set(key2, str(dict_data[key][key2]))
                 elif value_data_type == 'list':
                     # array case
                     for one_dict_data in dict_data[key]:
@@ -1267,7 +1265,7 @@ class PkMerchant(Pakettikauppa):
                     # string case
                     if dict_data[key] is not None:
                         child = ET.SubElement(additional_service_root_element, key)
-                        child.text = str(dict_data[key].decode('utf-8'))
+                        child.text = str(dict_data[key])
 
     def _create_one_service_specifier(self, additional_service_root_element, dict_data):
         """
@@ -1288,7 +1286,7 @@ class PkMerchant(Pakettikauppa):
         child = ET.SubElement(additional_service_root_element, 'AdditionalService.Specifier')
         for key in dict_data:
             if key == 'value':
-                child.text = str(dict_data[key].decode('utf-8'))
+                child.text = str(dict_data[key])
             else:
                 child.set(key, str(dict_data[key]))
 
@@ -1304,7 +1302,7 @@ class PkMerchant(Pakettikauppa):
         if value is None:
             value = ''
         invoice_number_element = ET.SubElement(root, "Consignment.Invoicenumber")
-        invoice_number_element.text = str(value.decode('utf-8'))
+        invoice_number_element.text = str(value)
 
     def _create_content_code_element(self, root, value):
         """
@@ -1317,7 +1315,7 @@ class PkMerchant(Pakettikauppa):
         if value is None or value == '':
             raise PakettikauppaException("Require Consignment.Contentcode value")
         else:
-            value = str(value.decode('utf-8'))
+            value = str(value)
             self._validate_content_code_value(value)
 
         content_element = ET.SubElement(root, "Consignment.Contentcode")
@@ -1397,7 +1395,7 @@ class PkMerchant(Pakettikauppa):
         # self.mylogger.debug("Hash input for creating Parcel elements={}".format(kwargs))
         for key in kwargs:
             if key not in self._accept_parcel_keys:
-                raise Exception(KeyError("Invalid key parameter"))
+                raise KeyError("Invalid key parameter")
 
             if key == 'Parcel.contentline':
                 self._create_content_line_elements(parcel_root_element, **kwargs[key])
@@ -1457,7 +1455,7 @@ class PkMerchant(Pakettikauppa):
         root = ET.SubElement(parcel_root_element, "Parcel.contentline")
         for key in kwargs:
             child = ET.SubElement(root, key)
-            child.text = str(kwargs[key].decode('utf-8'))
+            child.text = str(kwargs[key])
 
     # Not yet getting expected result in Test server
     def get_shipment_status(self, tracking_code):
@@ -1481,7 +1479,7 @@ class PkMerchant(Pakettikauppa):
         :return dict_data: dictionary of request data
         """
         if tracking_code is None or tracking_code == '':
-            raise Exception(KeyError("Require tracking code string"))
+            raise KeyError("Require tracking code string")
 
         dict_req_data = {
             'api_key': self._api_key,
@@ -1657,9 +1655,9 @@ class PkMerchant(Pakettikauppa):
         :return xml_string:
         """
         if kwargs is None:
-            raise Exception(KeyError("Expect input parameters"))
+            raise KeyError("Expect input parameters")
         if len(kwargs) == 0:
-            raise Exception(KeyError("Expect input parameters"))
+            raise KeyError("Expect input parameters")
 
         if 'eChannel' not in kwargs:
             raise KeyError("eChannel key is missing")
@@ -1676,8 +1674,8 @@ class PkMerchant(Pakettikauppa):
             raise KeyError("Missing PrintLabel key")
         self._create_print_label_element(root, **kwargs['eChannel']['PrintLabel'])
 
-        xml_string = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ", encoding="utf-8")
-        # print(repr(xml_string))
+        # xml_string = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ", encoding="utf-8")
+        xml_string = ET.tostring(root, pretty_print=True, xml_declaration=True, encoding="UTF-8")
         self.mylogger.debug("XML string = {}".format(xml_string))
 
         return xml_string
@@ -1766,7 +1764,7 @@ def create_additional_info_element(root, **dict_data):
 
     additional_info_root_element = ET.SubElement(root, "Consignment.AdditionalInfo")
     additional_info_element = ET.SubElement(additional_info_root_element, "AdditionalInfo.Text")
-    additional_info_element.text = str(text_value.decode('utf-8'))
+    additional_info_element.text = text_value
 
 
 def create_reference_element(root, value=None):
@@ -1780,7 +1778,7 @@ def create_reference_element(root, value=None):
     if value is None:
         value = ''
     reference_element = ET.SubElement(root, "Consignment.Reference")
-    reference_element.text = str(value.decode('utf-8'))
+    reference_element.text = str(value)
 
 
 def create_product_element(root, product_code):
