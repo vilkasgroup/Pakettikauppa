@@ -15,11 +15,13 @@ __version__ = '0.1'
 __author__ = 'Porntip Chaibamrung'
 
 import logging
+from six import string_types
 from base64 import b64decode
 from time import time
 from datetime import datetime
 from xml.dom import minidom
-from xml.etree import ElementTree as ET
+#from xml.etree import ElementTree as ET
+from lxml import etree as ET
 from .pakettikauppa import Pakettikauppa, PakettikauppaException, check_api_name
 
 
@@ -335,7 +337,7 @@ class PkMerchant(Pakettikauppa):
             'Content-Type': 'application/xml'
         }
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
-        xml_res_string = res_obj.text
+        xml_res_string = res_obj.content
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
 
         return self.parse_xml_create_shipment_res(xml_res_string)
@@ -366,7 +368,7 @@ class PkMerchant(Pakettikauppa):
             'Content-Type': 'application/xml'
         }
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
-        xml_res_string = res_obj.text
+        xml_res_string = res_obj.content
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
 
         return self.parse_xml_create_shipment_res(xml_res_string)
@@ -1043,10 +1045,7 @@ class PkMerchant(Pakettikauppa):
 
         self._create_shipment_elements(root, **kwargs['eChannel']['Shipment'])
 
-        # we can return this string already but layout is not nice for reading
-        unformatted_xml_string = ET.tostring(root, encoding="utf-8", method='xml')
-        # for nicer look of output
-        xml_string = minidom.parseString(unformatted_xml_string).toprettyxml(indent="   ", encoding="utf-8")
+        xml_string = ET.tostring(root, pretty_print=True, xml_declaration=True, encoding="UTF-8")
         self.mylogger.debug("XML string = {}".format(xml_string))
         return xml_string
 
@@ -1157,8 +1156,7 @@ class PkMerchant(Pakettikauppa):
                     raise Exception(KeyError("Invalid key"))
 
             child = ET.SubElement(address_root_element, key)
-            child.text = str(kwargs[key].decode('utf-8'))
-
+            child.text = kwargs[key]
         return
 
     def _create_shipment_consignment_element(self, root_element, **kwargs):
@@ -1427,7 +1425,7 @@ class PkMerchant(Pakettikauppa):
             else:
                 # expected string value from kwargs[key]
                 # self.mylogger.debug("Key for creating Parcel elements={}, Value={}".format(key, kwargs[key]))
-                if type(kwargs[key]).__name__ != 'str':
+                if not isinstance(kwargs[key], string_types):
                     raise PakettikauppaException("Invalid value in key={}".format(key))
 
                 if key == 'Parcel.Packagetype':
@@ -1472,7 +1470,7 @@ class PkMerchant(Pakettikauppa):
         _api_config = self.get_api_config('get_shipment_status')
         dict_req_data = self.get_shipment_status_req_data(tracking_code)
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], dict_req_data)
-        self.logger.debug("[GetShipment] Response={}".format(res_obj.text))
+        self.logger.debug("[GetShipment] Response={}".format(res_obj.content))
         return
 
     def get_shipment_status_req_data(self, tracking_code):
@@ -1523,7 +1521,7 @@ class PkMerchant(Pakettikauppa):
 
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], xml_req_data, **headers)
 
-        xml_res_string = res_obj.text
+        xml_res_string = res_obj.content
         self.mylogger.debug("Response XML string = {}".format(xml_res_string))
 
         return self.parse_xml_get_shipping_label_res(xml_res_string)
@@ -1762,7 +1760,8 @@ def create_additional_info_element(root, **dict_data):
     text_value = dict_data['AdditionalInfo.Text']
     if text_value is None:
         return None
-    if type(text_value).__name__ != 'str':
+
+    if not isinstance(text_value, string_types):
         raise PakettikauppaException("Expect string value in 'AdditionalInfo.Text' parameter")
 
     additional_info_root_element = ET.SubElement(root, "Consignment.AdditionalInfo")
