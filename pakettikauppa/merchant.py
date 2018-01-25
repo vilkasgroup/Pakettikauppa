@@ -141,8 +141,7 @@ class PkMerchant(Pakettikauppa):
         if api_name in self._api_mapping:
             return str(self._api_mapping[api_name])
         else:
-            raise PakettikauppaException("Invalid API name. Possible value are 'get_shipping_method_list', \
-            'get_additional_service_list'")
+            raise PakettikauppaException("Invalid API name")
 
     def get_api_config(self, api_name=None):
         """

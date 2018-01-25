@@ -5,7 +5,7 @@ from pakettikauppa.merchant import decode_pdf_content, PkMerchant
 class TestGeneral(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        pass
+        cls._merchant = PkMerchant(1)
 
     def tearDown(self):
         """
@@ -17,9 +17,12 @@ class TestGeneral(unittest.TestCase):
         with self.assertRaises(ValueError):
             decoded_pdf_content_string = decode_pdf_content('')
 
+    def test_invalid_api_name_call(self):
+        with self.assertRaises(Exception):
+            h_config = self._merchant.get_api_config('list_customer')
+
     def test_get_api_conf(self):
-        merchant = PkMerchant(1)
-        h_config = merchant.get_api_config('list_customer')
+        h_config = self._merchant.get_api_config('get_shipping_method_list')
         self.assertIsNotNone(h_config)
 
 
