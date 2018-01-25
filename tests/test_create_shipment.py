@@ -214,7 +214,7 @@ class TestCreateShipment(TestCase):
                         },
                         'Shipment.Recipient': {
                             'Recipient.Name1': 'Receiver name',
-                            'Recipient.Addr1': 'Nikinväylä 3 test',
+                            'Recipient.Addr1': 'Nikinväylä 3 test'.encode('utf-8'),
                             'Recipient.Postcode': '33100',
                             'Recipient.City': 'Tampere',
                             'Recipient.Country': 'FI',
@@ -251,7 +251,7 @@ class TestCreateShipment(TestCase):
                         },
                         'Shipment.Recipient': {
                             'Recipient.Name1': 'Receiver name',
-                            'Recipient.Addr1': 'Nikinväylä 3 test',
+                            'Recipient.Addr1': 'Nikinväylä 3 test'.encode('utf-8'),
                             'Recipient.Postcode': '33100',
                             'Recipient.City': 'Tampere',
                             'Recipient.Country': 'FI',
@@ -277,6 +277,7 @@ class TestCreateShipment(TestCase):
 
     def test_create_shipment(self):
         _additional_info_text = "ÄOrder no.: " + self.ORDER_ALIAS + "-- Reference no.: 00001"
+        _additional_info_text = _additional_info_text.encode('utf-8')
         req_input = {
             'eChannel': {
                 'ROUTING': {
@@ -305,7 +306,7 @@ class TestCreateShipment(TestCase):
                         # 'Recipient.Code': '',
                         'Recipient.Name1': 'John Doe',
                         'Recipient.Name2': '',
-                        'Recipient.Addr1': 'Nikinväylä 3 test',
+                        'Recipient.Addr1': 'Nikinväylä 3 test'.encode('utf-8'),
                         'Recipient.Addr2': '',
                         'Recipient.Addr3': '',
                         'Recipient.Postcode': '33100',
