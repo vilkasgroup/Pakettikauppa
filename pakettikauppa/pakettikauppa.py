@@ -123,6 +123,7 @@ class Pakettikauppa(object):
         self.logger.debug("Plain text={}".format(plain_text))
 
         if sys.version_info < (3, 0):
+            plain_text.decode('utf-8')
             message_bytes = bytes(plain_text)
             secret_bytes = bytes(secret_key)
         else:
