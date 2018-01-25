@@ -265,7 +265,7 @@ class TestCreateShipment(TestCase):
         self.assertEqual(str(e.exception), "'Missing mandatory key in Shipment.Consignment element'")
 
     def test_create_shipment(self):
-        _additional_info_text = "Order no.: " + self.ORDER_ALIAS + "-- Reference no.: 00001"
+        _additional_info_text = "ÄOrder no.: " + self.ORDER_ALIAS + "-- Reference no.: 00001"
         req_input = {
             'eChannel': {
                 'ROUTING': {
