@@ -177,26 +177,7 @@ class PkMerchant(Pakettikauppa):
         dict_req_data = self.get_pickup_point_req_data(_api_config['api_key'], **kwargs)
 
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], dict_req_data)
-        # self.get_res_pickup_point_data(res_obj)
         return self.parse_res_to_list(res_obj)
-
-    def get_res_pickup_point_data(self, res_obj):
-        """
-        Just helper function for testing looping through list data
-
-        :param res_obj: response object
-        :return: list_data: list of pickup points
-        """
-        list_data = res_obj.json()
-        self.mylogger.debug("Response JSON data = {}".format(list_data))
-        self.mylogger.debug("\n")
-
-        # print("data item " + json.loads(list_data))
-        for dict_item in list_data:
-            self.mylogger.debug("item = {}".format(dict_item))
-            self.mylogger.debug("\n")
-
-        return list_data
 
     def get_pickup_point_req_data(self, api_key, **kwargs):
         """

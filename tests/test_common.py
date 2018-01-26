@@ -21,6 +21,15 @@ class TestGeneral(unittest.TestCase):
         with self.assertRaises(Exception):
             merchant = PkMerchant(0, 'test', None)
 
+    def test_create_merchant_object_in_live(self):
+        creation_ok = 1
+        try:
+            merchant = PkMerchant(0, 'test api', 'test secret')
+        except Exception:
+            creation_ok = 0
+
+        self.assertIs(creation_ok, 1)
+
     def test_empty_pdf_content(self):
         with self.assertRaises(ValueError):
             decoded_pdf_content_string = decode_pdf_content('')

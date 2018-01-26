@@ -49,6 +49,39 @@ class TestSearchPickupPoint(TestCase):
         list_data = self._merchant.search_pickup_points(**input_params)
         self.assertIsNotNone(list_data)
 
+    def test_define_max_result(self):
+        max_result_value = 6
+        input_params = {
+            'postal_code': '33210',
+            'country_code2': '',
+            'street_address': '',
+            'service_provider': None,
+            'max_result': max_result_value
+        }
+        list_data = self._merchant.search_pickup_points(**input_params)
+        # print("list_data = {}".format(list_data))
+        counter = 0
+        for dict_item in list_data:
+            counter = counter + 1
+        print("Search result = {}".format(counter))
+        self.assertLessEqual(counter, max_result_value)
+
+    def test_search_db_schenker(self):
+        search_provider = 'DB Schenker'
+        input_params = {
+            'postal_code': '33210',
+            'country_code2': '',
+            'street_address': '',
+            'service_provider': search_provider,
+            'max_result': 1
+        }
+        list_data = self._merchant.search_pickup_points(**input_params)
+        res_provider = ''
+        for dict_item in list_data:
+            res_provider = dict_item['provider']
+
+        self.assertEqual(search_provider, res_provider)
+
 
 if __name__ == '__main__':
     main(verbosity=2)
