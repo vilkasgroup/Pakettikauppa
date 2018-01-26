@@ -13,6 +13,14 @@ class TestGeneral(unittest.TestCase):
         """
         pass
 
+    def test_empty_api_key(self):
+        with self.assertRaises(Exception):
+            merchant = PkMerchant(0, None, 'test')
+
+    def test_empty_secret_key(self):
+        with self.assertRaises(Exception):
+            merchant = PkMerchant(0, 'test', None)
+
     def test_empty_pdf_content(self):
         with self.assertRaises(ValueError):
             decoded_pdf_content_string = decode_pdf_content('')
