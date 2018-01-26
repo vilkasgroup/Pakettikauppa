@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
+import sys
 import logging
 from unittest import TestCase, main
 from pakettikauppa.merchant import PkMerchant
@@ -18,6 +19,17 @@ class TestCreateShipment(TestCase):
         cls.SECRET = 'b5c95243276d3ff398207f8dea3013fef001e6e5f51fb9cb2252f609608a81'
         cls.ROUTING_ID = '1464524676'
         cls.ORDER_ALIAS = 'ORDER10002'
+
+        # for special character testing
+        if sys.version_info < (3, 0):
+            # Python 2.7
+            cls._recipient_address = 'Nikinväylä 3 test'.decode('utf-8').encode('utf-8')
+            cls._additional_info_text = "ÄOrder no.: " + cls.ORDER_ALIAS + "-- Reference no.: 00001"
+            cls._additional_info_text = cls._additional_info_text.decode('utf-8').encode('utf-8')
+        else:
+            # Python 3.6
+            cls._recipient_address = 'Nikinväylä 3 test'
+            cls._additional_info_text = "ÄOrder no.: " + cls.ORDER_ALIAS + "-- Reference no.: 00001"
 
         cls._merchant = PkMerchant(1, cls.API_KEY, cls.SECRET)
         cls.logger = logging.getLogger(__name__)
@@ -214,7 +226,7 @@ class TestCreateShipment(TestCase):
                         },
                         'Shipment.Recipient': {
                             'Recipient.Name1': 'Receiver name',
-                            'Recipient.Addr1': 'Nikinväylä 3 test'.encode('utf-8'),
+                            'Recipient.Addr1': self._recipient_address,
                             'Recipient.Postcode': '33100',
                             'Recipient.City': 'Tampere',
                             'Recipient.Country': 'FI',
@@ -251,7 +263,7 @@ class TestCreateShipment(TestCase):
                         },
                         'Shipment.Recipient': {
                             'Recipient.Name1': 'Receiver name',
-                            'Recipient.Addr1': 'Nikinväylä 3 test'.encode('utf-8'),
+                            'Recipient.Addr1': self._recipient_address,
                             'Recipient.Postcode': '33100',
                             'Recipient.City': 'Tampere',
                             'Recipient.Country': 'FI',
@@ -276,8 +288,6 @@ class TestCreateShipment(TestCase):
         self.assertIsNotNone(dict_res) and self.assertTrue(status) and self.assertIsNotNone(tracking_code)
 
     def test_create_shipment(self):
-        _additional_info_text = "ÄOrder no.: " + self.ORDER_ALIAS + "-- Reference no.: 00001"
-        _additional_info_text = _additional_info_text.encode('utf-8')
         req_input = {
             'eChannel': {
                 'ROUTING': {
@@ -306,7 +316,7 @@ class TestCreateShipment(TestCase):
                         # 'Recipient.Code': '',
                         'Recipient.Name1': 'John Doe',
                         'Recipient.Name2': '',
-                        'Recipient.Addr1': 'Nikinväylä 3 test'.encode('utf-8'),
+                        'Recipient.Addr1': self._recipient_address,
                         'Recipient.Addr2': '',
                         'Recipient.Addr3': '',
                         'Recipient.Postcode': '33100',
@@ -326,7 +336,7 @@ class TestCreateShipment(TestCase):
                         'Consignment.Merchandisevalue': 150,
                         'Consignment.Currency': 'eur',
                         'Consignment.AdditionalInfo': {
-                            'AdditionalInfo.Text': _additional_info_text
+                            'AdditionalInfo.Text': self._additional_info_text
                         },
                         'Consignment.AdditionalService': [
                             {
