@@ -556,7 +556,7 @@ class PkMerchant(Pakettikauppa):
         :param simple_dict_data: see output of get_simple_test_data_create_shipment() function
         :return dict_data: dictionary of request data
         """
-        if simple_dict_data is None:
+        if simple_dict_data is None or len(simple_dict_data) == 0:
             raise KeyError("Require dictionary of input parameters for formatting")
 
         _routing_id = simple_dict_data['Routing']['id']
