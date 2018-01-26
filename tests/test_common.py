@@ -1,4 +1,5 @@
 import unittest
+from lxml import etree as ET
 from pakettikauppa.merchant import decode_pdf_content, PkMerchant
 
 
@@ -41,6 +42,82 @@ class TestGeneral(unittest.TestCase):
     def test_get_api_conf(self):
         h_config = self._merchant.get_api_config('get_shipping_method_list')
         self.assertIsNotNone(h_config)
+
+    def test_empty_input_create_consignment_element(self):
+        with self.assertRaises(Exception):
+            self._merchant._create_shipment_consignment_element('test', **{})
+
+    def test_empty_consignment_parcel(self):
+        root = ET.Element('ROOT')
+        res = self._merchant._create_shipment_consignment_element(root, **{
+            'Consignment.Reference': '3211479032410',
+            'Consignment.Product': '90010',
+            'Consignment.Currency': 'EUR',
+            'Consignment.Invoicenumber': 'INV001',
+            'Consignment.AdditionalInfo': {
+                'AdditionalInfo.Text': 'Additional info text'
+            },
+            'Consignment.Contentcode': 'D',
+            'Consignment.ReturnInstruction': None,
+            'Consignment.Merchandisevalue': None,
+            'Consignment.AdditionalService': None,
+            'Consignment.Parcel': []
+        })
+        self.assertIsNone(res)
+
+    def test_invalid_consignment_parcel(self):
+        root = ET.Element('ROOT')
+        with self.assertRaises(Exception):
+            self._merchant._create_shipment_consignment_element(root, **{
+                'Consignment.Reference': '3211479032410',
+                'Consignment.Product': '90010',
+                'Consignment.Currency': 'EUR',
+                'Consignment.Invoicenumber': 'INV001',
+                'Consignment.AdditionalInfo': {
+                    'AdditionalInfo.Text': 'Additional info text'
+                },
+                'Consignment.Contentcode': 'D',
+                'Consignment.ReturnInstruction': None,
+                'Consignment.Merchandisevalue': None,
+                'Consignment.AdditionalService': None,
+                'Consignment.Parcel': 'test'
+            })
+
+    def test_invalid_content_code(self):
+        root = ET.Element('ROOT')
+        with self.assertRaises(Exception):
+            self._merchant._create_shipment_consignment_element(root, **{
+                'Consignment.Reference': '3211479032410',
+                'Consignment.Product': '90010',
+                'Consignment.Currency': 'EUR',
+                'Consignment.Invoicenumber': 'INV001',
+                'Consignment.AdditionalInfo': {
+                    'AdditionalInfo.Text': 'Additional info text'
+                },
+                'Consignment.Contentcode': 'A',
+                'Consignment.ReturnInstruction': None,
+                'Consignment.Merchandisevalue': None,
+                'Consignment.AdditionalService': None,
+                'Consignment.Parcel': []
+            })
+
+    def test_invalid_return_instruction(self):
+        root = ET.Element('ROOT')
+        with self.assertRaises(Exception):
+            self._merchant._create_shipment_consignment_element(root, **{
+                'Consignment.Reference': '3211479032410',
+                'Consignment.Product': '90010',
+                'Consignment.Currency': 'EUR',
+                'Consignment.Invoicenumber': 'INV001',
+                'Consignment.AdditionalInfo': {
+                    'AdditionalInfo.Text': 'Additional info text'
+                },
+                'Consignment.Contentcode': 'D',
+                'Consignment.ReturnInstruction': 'A',
+                'Consignment.Merchandisevalue': None,
+                'Consignment.AdditionalService': None,
+                'Consignment.Parcel': []
+            })
 
 
 if __name__ == '__main__':

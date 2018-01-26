@@ -1172,11 +1172,8 @@ class PkMerchant(Pakettikauppa):
 
         :return:
         """
-        if kwargs is None:
-            raise KeyError("Require parameters")
-
-        if len(kwargs) == 0:
-            raise KeyError("Input parameter cann't be empty.")
+        if kwargs is None or len(kwargs) == 0:
+            raise KeyError("Input parameter cannot be empty.")
 
         self.logger.debug("[_create_shipment_consignment_element] KWARGS={}".format(kwargs))
 
@@ -1197,10 +1194,12 @@ class PkMerchant(Pakettikauppa):
         info_code_element = ET.SubElement(root, "Consignment.Infocode")
         info_code_element.text = ''
 
-        self._create_return_instruction_element(root, kwargs['Consignment.ReturnInstruction'])
+        if kwargs['Consignment.ReturnInstruction'] is not None:
+            self._create_return_instruction_element(root, kwargs['Consignment.ReturnInstruction'])
 
         # this is for aboard shipment when custom need to know value of products in the shipment
-        create_merchandise_value_element(root, kwargs['Consignment.Merchandisevalue'])
+        if kwargs['Consignment.Merchandisevalue'] is not None:
+            create_merchandise_value_element(root, kwargs['Consignment.Merchandisevalue'])
 
         self._create_additional_service_elements(root, kwargs['Consignment.AdditionalService'])
 
