@@ -118,7 +118,7 @@ class PkMerchant(Pakettikauppa):
                 self._api_key = api_key
 
             if secret is None or secret == '':
-                self._secret = '1234567890ABCDEF'
+                self._secret = str('1234567890ABCDEF')
             else:
                 self._secret = secret
         else:

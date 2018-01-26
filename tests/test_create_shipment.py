@@ -17,8 +17,11 @@ class TestCreateShipment(TestCase):
     @classmethod
     def setUpClass(cls):
         # Vilkas own key for customer id = 65 but end point must be in test mode
-        cls.API_KEY = 'd4fb618f-1f44-4dc0-bdce-4993f4b91b77'
-        cls.SECRET = 'b5c95243276d3ff398207f8dea3013fef001e6e5f51fb9cb2252f609608a81'
+        # customer id = 65
+        # 'd4fb618f-1f44-4dc0-bdce-4993f4b91b77'
+        # 'b5c95243276d3ff398207f8dea3013fef001e6e5f51fb9cb2252f609608a81'
+        cls.API_KEY = '4f10f3dc-cbc7-47a6-abf7-ec2f8189977f'
+        cls.SECRET = '8b6510ef94f2cb9da3d4320d12ae1cd9c880a71be4e8e983e170a71482d43a278b0d53c4a39ef283'
         cls.ROUTING_ID = '1464524676'
         cls.ORDER_ALIAS = 'ORDER10002'
 
@@ -33,9 +36,10 @@ class TestCreateShipment(TestCase):
             cls._recipient_address = 'Nikinväylä 3 test'
             cls._additional_info_text = "ÄOrder no.: " + cls.ORDER_ALIAS + "-- Reference no.: 00001"
 
-        cls._merchant = PkMerchant(1)
         # when using own account we must ensure that we have enough funds otherwise we will get error message
-        cls._own_merchant = PkMerchant(1, cls.API_KEY, cls.SECRET)
+        cls._merchant = PkMerchant(1, cls.API_KEY, cls.SECRET)
+        cls._pk_test_merchant = PkMerchant(1)
+
         cls.logger = logging.getLogger(__name__)
 
     def tearDown(self):
