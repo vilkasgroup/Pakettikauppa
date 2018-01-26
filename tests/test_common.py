@@ -135,6 +135,69 @@ class TestGeneral(unittest.TestCase):
             error_found = 1
         self.assertIs(error_found, 0)
 
+    def test_create_child_print_label_element(self):
+        root = ET.Element('ROOT')
+        error_found = 0
+        try:
+            self._merchant._create_child_print_label_element(root, **{
+                'Code': 'test',
+            })
+        except Exception:
+            error_found = 1
+
+        self.assertIsNot(error_found, 1)
+
+    def test_generate_multiple_tracking_codes_req(self):
+        root = ET.Element('ROOT')
+        error_found = 0
+        try:
+            self._merchant._create_child_print_label_element(root, **{
+                'TrackingCode': [
+                    {
+                        'Code': 'JJFITESTLABEL601'
+                    },
+                    {
+                        'Code': 'JJFITESTLABEL602'
+                    },
+                ]
+            })
+        except Exception:
+            error_found = 1
+
+        self.assertIsNot(error_found, 1)
+
+    def test_invalid_key_create_child_print_label_element(self):
+        root = ET.Element('ROOT')
+        with self.assertRaises(Exception):
+            self._merchant._create_child_print_label_element(root, **{
+                'Code': {'InvalidKey': 'test'},
+            })
+
+    def test_validate_package_type(self):
+        with self.assertRaises(Exception):
+            self._merchant._validate_package_type('AB')
+
+    def test_invalid_key_create_parcel_elements(self):
+        root = ET.Element('ROOT')
+        with self.assertRaises(Exception):
+            self._merchant._create_parcel_elements(root, **{
+                'Parcel.InvalidKey': 'test'
+            })
+
+    def test_empty_weight_unit(self):
+        root = ET.Element('ROOT')
+        with self.assertRaises(Exception):
+            self._merchant._create_parcel_elements(root, **{
+                'Parcel.Weight': {'weight_unit': '', 'value': '1.2'},
+            })
+
+    def test_empty_weight_unit_value(self):
+        root = ET.Element('ROOT')
+        with self.assertRaises(Exception):
+            self._merchant._create_parcel_elements(root, **{
+                'Parcel.Weight': {'weight_unit': 'kg', 'value': ''},
+            })
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

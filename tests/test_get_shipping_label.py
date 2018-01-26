@@ -187,6 +187,11 @@ class TestGetShippingLabel(TestCase):
             })
         # self.logger.debug("Exception message = {}".format(e.exception))
 
+    def test_get_test_req_data(self):
+        dict_data = self._merchant.get_shipping_label_req_test_data()
+        xml_req_data = self._merchant.get_xml_shipping_label_req_data(**dict_data)
+        self.assertIsNotNone(xml_req_data)
+
     def test_get_shipping_label(self):
         req_input = {
             'eChannel': {
