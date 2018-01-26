@@ -33,7 +33,9 @@ class TestCreateShipment(TestCase):
             cls._recipient_address = 'Nikinväylä 3 test'
             cls._additional_info_text = "ÄOrder no.: " + cls.ORDER_ALIAS + "-- Reference no.: 00001"
 
-        cls._merchant = PkMerchant(1, cls.API_KEY, cls.SECRET)
+        cls._merchant = PkMerchant(1)
+        # when using own account we must ensure that we have enough funds otherwise we will get error message
+        cls._own_merchant = PkMerchant(1, cls.API_KEY, cls.SECRET)
         cls.logger = logging.getLogger(__name__)
 
     def tearDown(self):
