@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import logging
 from unittest import TestCase, main
 from pakettikauppa.merchant import PkMerchant
@@ -19,6 +21,12 @@ class TestGetShippingLabel(TestCase):
 
         cls._merchant = PkMerchant(1, cls.API_KEY, cls.SECRET)
         cls.logger = logging.getLogger(__name__)
+
+    def tearDown(self):
+        """
+        This method is called after each test
+        """
+        pass
 
     def test_empty__input_params(self):
         with self.assertRaises(Exception) as e:

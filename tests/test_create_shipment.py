@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # from __future__ import unicode_literals
 import sys
 import logging
@@ -34,12 +36,24 @@ class TestCreateShipment(TestCase):
         cls._merchant = PkMerchant(1, cls.API_KEY, cls.SECRET)
         cls.logger = logging.getLogger(__name__)
 
+    def tearDown(self):
+        """
+        This method is called after each test
+        """
+        pass
+
     def test_empty_parameter(self):
+        """
+        Test passing empty parameter to the function
+        """
         with self.assertRaises(Exception) as e:
             self._merchant.create_shipment(**{})
         # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_root_element(self):
+        """
+        Test when passing dictionary without expected root element
+        """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'InvalidKey': 'KeyValue'
@@ -48,6 +62,9 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "'eChannel key is missing'")
 
     def test_missing_routing_element(self):
+        """
+        Test passing root element but without routing element in dictionary data
+        """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -58,6 +75,9 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "'ROUTING key is missing'")
 
     def test_missing_shipment_element(self):
+        """
+        Test passing dictionary without Shipment element.
+        """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -75,6 +95,9 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "'Shipment key is missing'")
 
     def test_empty_routing(self):
+        """
+        Test passing routing element with empty value.
+        """
         with self.assertRaises(ValueError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -86,6 +109,7 @@ class TestCreateShipment(TestCase):
         self.assertEqual(str(e.exception), "Missing routing data")
 
     def test_wrong_data_type_routing(self):
+        """ Test passing incorrect routing data structure. """
         with self.assertRaises(TypeError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -97,6 +121,7 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "Missing routing data")
 
     def test_missing_keys_in_routing(self):
+        """ Test passing correct data structure for Routing element but incorrect key. """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -109,6 +134,7 @@ class TestCreateShipment(TestCase):
         # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_sender(self):
+        """ Test passing Shipment element without sender data. """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -128,6 +154,7 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "'Missing Shipment.Sender key'")
 
     def test_missing_sender_info(self):
+        """ Test passing Shipment.Sender element without data. """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -146,6 +173,7 @@ class TestCreateShipment(TestCase):
         # self.logger.debug("Exception message = {}".format(e.exception))
 
     def test_missing_recipient(self):
+        """ Test passing without recipient data. """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -174,6 +202,7 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "'Missing Shipment.Recipient key'")
 
     def test_missing_recipient_info(self):
+        """ Test passing Shipment.Recipient element without recipient data. """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -203,6 +232,7 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "'Missing mandatory key in Shipment.Recipient element'")
 
     def test_missing_consignment(self):
+        """ Test passing without consignment data. """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -240,6 +270,7 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "'Missing Shipment.Consignment key'")
 
     def test_missing_consignment_info(self):
+        """ Test passing Shipment.Consignment element without data. """
         with self.assertRaises(KeyError) as e:
             self._merchant.create_shipment(**{
                 'eChannel': {
@@ -278,6 +309,7 @@ class TestCreateShipment(TestCase):
         # self.assertEqual(str(e.exception), "'Missing mandatory key in Shipment.Consignment element'")
 
     def test_create_with_test_req_data(self):
+        """ Test generated test request data. """
         req_data = self._merchant.get_create_shipment_test_req_data()
         dict_res = self._merchant.create_shipment(**req_data)
 
@@ -288,6 +320,7 @@ class TestCreateShipment(TestCase):
         self.assertIsNotNone(dict_res) and self.assertTrue(status) and self.assertIsNotNone(tracking_code)
 
     def test_create_shipment(self):
+        """ Test creating shipment with proper data structure. """
         req_input = {
             'eChannel': {
                 'ROUTING': {
