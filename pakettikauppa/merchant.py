@@ -215,13 +215,17 @@ class PkMerchant(Pakettikauppa):
         if _max_result is None:
             _max_result = 5
         else:
-            _max_result = int(_max_result)
+            _max_result = str(int(_max_result))
+
+        _time_stamp = kwargs['timestamp']
+        if _time_stamp is None:
+            # 'timestamp' must come in this format '1512575546'
+            _time_stamp = str(int(time()))
 
         dict_req_data = {
             'api_key': api_key,
             'postcode': str(_postal_code),
-            'timestamp': str(int(time())),
-            # 'timestamp': '1512575546', # for testing only
+            'timestamp': _time_stamp,
             'limit': _max_result,
             'country': _country_code2,
         }
@@ -1393,7 +1397,7 @@ class PkMerchant(Pakettikauppa):
             if key == 'Parcel.contentline':
                 self._create_content_line_elements(parcel_root_element, **kwargs[key])
             elif key == 'Parcel.ParcelService':
-                _create_parcel_service_elements(parcel_root_element, kwargs[key])
+                self._create_parcel_service_elements(parcel_root_element, kwargs[key])
             elif key == 'Parcel.Weight':
                 if kwargs[key]['weight_unit'] is None or kwargs[key]['weight_unit'] == '':
                     raise PakettikauppaException("Expect value in weight_unit parameter")
@@ -1462,7 +1466,7 @@ class PkMerchant(Pakettikauppa):
         dict_req_data = self.get_shipment_status_req_data(tracking_code)
         res_obj = super(PkMerchant, self).send_request('POST', _api_config['api_post_url'], dict_req_data)
         self.logger.debug("[GetShipment] Response={}".format(res_obj.content))
-        return
+        return res_obj
 
     def get_shipment_status_req_data(self, tracking_code):
         """
@@ -1472,7 +1476,7 @@ class PkMerchant(Pakettikauppa):
         :return dict_data: dictionary of request data
         """
         if tracking_code is None or tracking_code == '':
-            raise KeyError("Require tracking code string")
+            raise ValueError("Require tracking code string")
 
         dict_req_data = {
             'api_key': self._api_key,
@@ -1764,6 +1768,24 @@ class PkMerchant(Pakettikauppa):
         else:
             additional_info_element.text = str(text_value)
 
+    def _create_parcel_service_elements(self, root, list_services):
+        """
+        Append 'Parcel.ParcelService' element to given root object.
+
+        :param root: root XML element object
+        :param list_services:  list data of parcel services
+        :return:
+        """
+        if list_services is None or len(list_services) == 0:
+            return
+        else:
+            for dict_data in list_services:
+                parcel_service_root_element = ET.SubElement(root, "Parcel.ParcelService")
+                for key in dict_data:
+                    child = ET.SubElement(parcel_service_root_element, key)
+                    child.text = str(dict_data[key])
+        return
+
 
 def create_reference_element(root, value=None):
     """
@@ -1835,24 +1857,3 @@ def _create_one_tracking_code_element(root, tracking_code):
     """
     child = ET.SubElement(root, "TrackingCode")
     child.text = str(tracking_code)
-
-
-def _create_parcel_service_elements(root, list_services):
-    """
-    Append 'Parcel.ParcelService' element to given root object.
-
-    :param root: root XML element object
-    :param list_services:  list data of parcel services
-    :return:
-    """
-    if list_services is None:
-        return
-
-    if len(list_services) == 0:
-        return
-    else:
-        for dict_data in list_services:
-            parcel_service_root_element = ET.SubElement(root, "Parcel.ParcelService")
-            for key in dict_data:
-                child = ET.SubElement(parcel_service_root_element, key)
-                child.text = str(dict_data[key])

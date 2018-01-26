@@ -119,6 +119,22 @@ class TestGeneral(unittest.TestCase):
                 'Consignment.Parcel': []
             })
 
+    def test_empty_create_parcel_services_element(self):
+        root = ET.Element('ROOT')
+        res = self._merchant._create_parcel_service_elements(root, None)
+        self.assertIsNone(res)
+
+    def test_create_parcel_services_element(self):
+        root = ET.Element('ROOT')
+        error_found = 0
+        try:
+            self._merchant._create_parcel_service_elements(root, [{
+                'test_key': 'test_value'
+            }])
+        except Exception:
+            error_found = 1
+        self.assertIs(error_found, 0)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
