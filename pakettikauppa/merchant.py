@@ -814,6 +814,10 @@ class PkMerchant(Pakettikauppa):
             additional_info = "å Order no.: 1107-1 -- Reference no.: 284554"
             recipient_address = "Nikinväylä 3 test"
 
+        # [2.11.2018 - Tipi] Pickup point service can't have multiple parcels
+        # Only following dispatch types support multiple parcel service:
+        # Matkahuolto - Bussipaketti, Posti - Express-paketti, Matkahuolto - Jakopaketti,
+        # Posti - Kotipaketti, Matkahuolto - Lähi-/Verkkopaketti
         dict_data = {
             'eChannel': {
                 'ROUTING': {
@@ -859,7 +863,7 @@ class PkMerchant(Pakettikauppa):
                     },
                     'Shipment.Consignment': {
                         'Consignment.Reference': '3211479032410',
-                        'Consignment.Product': '90010',  # - Posti's product code 2103
+                        'Consignment.Product': '90010',  # - Posti's product code 2103 (Postipaketti)
                         'Consignment.Contentcode': 'D',  # Order->get('PR_ContentCode')
                         'Consignment.ReturnInstruction': 'E',  # Order->get('PR_ReturnInstruction')
                         # 'Consignment.ReturnInstruction': None,
@@ -928,7 +932,130 @@ class PkMerchant(Pakettikauppa):
                                 #        'ParcelService.Servicecode': 'parcel service code 2'
                                 #    },
                                 # ]
+                            }
+                        ]
+                    }  # end Shipment.Consignment
+                }  # end Shipment
+            }  # end eChannel
+        }
+
+        return dict_data
+
+    def get_create_multi_parcels_shipment_test_data(self):
+        """
+        Main function to generate test data set for create shipment request call.
+
+        :return dict_data: dictionary of request data
+        """
+        routing_id = '1464524676'
+        order_alias = 'ORDER002'
+
+        if sys.version_info < (3, 0):
+            additional_info = "å Order no.: 1108-1 -- Reference no.: 284555".decode('utf-8').encode('utf-8')
+            recipient_address = 'Nikinväylä 3 test'.decode('utf-8').encode('utf-8')
+        else:
+            additional_info = "å Order no.: 1108-1 -- Reference no.: 284555"
+            recipient_address = "Nikinväylä 3 test"
+
+        # [2.11.2018 - Tipi] Pickup point service can't have multiple parcels
+        # Only following dispatch types support multiple parcel service:
+        # Matkahuolto - Bussipaketti, Posti - Express-paketti, Matkahuolto - Jakopaketti,
+        # Posti - Kotipaketti, Matkahuolto - Lähi-/Verkkopaketti
+        dict_data = {
+            'eChannel': {
+                'ROUTING': {
+                    'Routing.Account': self._api_key,
+                    'Routing.Key': self.get_routing_key(routing_id),
+                    'Routing.Id': routing_id,
+                    'Routing.Name': order_alias,
+                    'Routing.Time': datetime.now().strftime('%Y%m%d%H%M%S'),
+                    # - Ignored parameters in Pakettikauppa
+                    # 'Routing.Target' => { 'content' => '' },
+                    # 'Routing.Source' => { 'content' => '' },
+                    # 'Routing.Version'  => { 'content' => '' },
+                    # 'Routing.Mode' => { 'content' => '' },
+                },
+                'Shipment': {
+                    'Shipment.Sender': {
+                        'Sender.Contractid': '',
+                        'Sender.Name1': 'Vilkas Group Oy',
+                        'Sender.Name2': '',
+                        'Sender.Addr1': 'Finlaysoninkuja 19',
+                        'Sender.Addr2': '',
+                        'Sender.Addr3': '',
+                        'Sender.Postcode': '33210',
+                        'Sender.City': 'Tampere',
+                        'Sender.Country': 'FI',
+                        'Sender.Phone': '',
+                        'Sender.Vatcode': '1234567-8',
+                        'Sender.Email': 'tipi@vilkas.fi',
+                    },
+                    'Shipment.Recipient': {
+                        # 'Recipient.Code': '',
+                        'Recipient.Name1': 'Receiver name',
+                        'Recipient.Name2': '',
+                        'Recipient.Addr1': recipient_address,
+                        'Recipient.Addr2': '',
+                        'Recipient.Addr3': '',
+                        'Recipient.Postcode': '33100',
+                        'Recipient.City': 'Tampere',
+                        'Recipient.Country': 'FI',
+                        'Recipient.Phone': '123456789',
+                        'Recipient.Vatcode': '',
+                        'Recipient.Email': 'tipi@vilkas.fi',
+                    },
+                    'Shipment.Consignment': {
+                        'Consignment.Reference': '3211479032410',
+                        'Consignment.Product': '2102',  # - Posti-Express-paketti
+                        'Consignment.Contentcode': '',  # Order->get('PR_ContentCode')
+                        'Consignment.ReturnInstruction': None,  # Order->get('PR_ReturnInstruction')
+                        # 'Consignment.ReturnInstruction': None,
+                        'Consignment.Invoicenumber': order_alias,
+                        'Consignment.Merchandisevalue': 150,  # Order->get('PR_Merchandisevalue')
+                        'Consignment.Currency': 'EUR',
+                        'Consignment.AdditionalInfo': {
+                            'AdditionalInfo.Text': additional_info
+                        },
+                        'Consignment.AdditionalService': [
+                            {
+                                'AdditionalService.ServiceCode': '3102',  # multiple parcel
+                                'AdditionalService.Specifier': {
+                                    'name': 'count',
+                                    'value': '2',
+                                }
+                            }
+                        ],
+                        'Consignment.Parcel': [
+                            {
+                                'Parcel.Reference': '123456',  # not mandatory
+                                'Parcel.Packagetype': 'PC',
+                                'Parcel.Weight': {'weight_unit': 'kg', 'value': '1.2'},
+                                'Parcel.Volume': {'unit': 'm3', 'value': '0.6'},
+                                'Parcel.Infocode': '1012',
+                                'Parcel.Contents': 'Test products',  # product description
+                                'Parcel.ReturnService': '123',
+                                # Customs declaration info (for medicine)
+                                'Parcel.contentline': {
+                                    'contentline.description': 'Puita',
+                                    'contentline.quantity': 1,
+                                    'contentline.currency': 'EUR',
+                                    'contentline.netweight': 1,
+                                    'contentline.value': 100,
+                                    'contentline.countryoforigin': 'FI',
+                                    'contentline.tariffcode': '9608101000',
+                                },
+                                # this is not really needed in Pakettikauppa but Prinetti
+                                'Parcel.ParcelService': []
+                                # 'Parcel.ParcelService': [
+                                #    {
+                                #        'ParcelService.Servicecode': 'parcel service code'
+                                #    },
+                                #    {
+                                #        'ParcelService.Servicecode': 'parcel service code 2'
+                                #    },
+                                # ]
                             },
+
                             {
                                 'Parcel.Reference': '123457',
                                 'Parcel.Packagetype': 'PC',
@@ -1303,15 +1430,13 @@ class PkMerchant(Pakettikauppa):
 
     def _create_content_code_element(self, root, value):
         """
-        Append 'Consignment.Contentcode' element to given root object.
-
+        Append 'Consignment.Contentcode' element to given root object. For multiple parcel this item can accept empty
+        string
         :param root: root XML element object
         :param value: string of content code
         :return:
         """
-        if value is None or value == '':
-            raise PakettikauppaException("Require Consignment.Contentcode value")
-        else:
+        if value is not None and value != '':
             value = str(value)
             self._validate_content_code_value(value)
 

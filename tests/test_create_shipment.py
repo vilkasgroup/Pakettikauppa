@@ -325,6 +325,17 @@ class TestCreateShipment(TestCase):
         tracking_code = dict_tracking_code['value']
         self.assertIsNotNone(dict_res) and self.assertTrue(status) and self.assertIsNotNone(tracking_code)
 
+    def test_create_multiple_parcel_with_test_req_data(self):
+        """ Test generated test request data. """
+        req_data = self._merchant.get_create_multi_parcels_shipment_test_data()
+        dict_res = self._merchant.create_shipment(**req_data)
+
+        status = dict_res['status']
+        dict_tracking_code = dict_res['trackingcode']
+        # tracking_url = dict_tracking_code['tracking_url']
+        tracking_code = dict_tracking_code['value']
+        self.assertIsNotNone(dict_res) and self.assertTrue(status) and self.assertIsNotNone(tracking_code)
+
     def test_create_shipment(self):
         """ Test creating shipment with proper data structure. """
         req_input = {

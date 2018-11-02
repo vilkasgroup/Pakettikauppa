@@ -217,9 +217,8 @@ class TestGetShippingLabel(TestCase):
                         # ]
                         #
                         # or use this way to send a request for one shipping label
-                        # This is for Vilkas API key
                         'TrackingCode': {
-                            'Code': 'JJFITESTLABEL1332'
+                            'Code': 'JJFI64574900000202361'
                         }
                     }
                 }
