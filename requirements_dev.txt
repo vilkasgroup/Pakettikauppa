@@ -1,13 +1,13 @@
-pip==19.0.1
+pip==19.0.3
 bumpversion==0.5.3
-wheel==0.32.3
+wheel==0.33.1
 watchdog==0.9.0
 flake8>=2.6.0
 tox==3.7.0
 coverage==4.5.2
 Sphinx>=1.6
 cryptography>2.3
-PyYAML==4.2b4
+PyYAML==5.1b3
 requests>=2.7.0
 lxml>=1.3
 
