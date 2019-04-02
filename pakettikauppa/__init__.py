@@ -4,4 +4,4 @@
 
 __author__ = """Porntip Chaibamrung"""
 __email__ = 'tipi@vilkas.fi'
-__version__ = '0.1.1'
+__version__ = '0.1.3'

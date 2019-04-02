@@ -2,6 +2,11 @@
 History
 =======
 
+0.1.3 (2019-04-02)
+------------------
+
+* Update version number due to changes in 'requirements_dev.txt' file
+
 0.1.2 (2019-07-01)
 ------------------
 
