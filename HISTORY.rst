@@ -2,6 +2,11 @@
 History
 =======
 
+0.1.4 (2019-04-02)
+------------------
+
+* Fixed security issue in Jinja2 package version in Pipfile.
+
 0.1.3 (2019-04-02)
 ------------------
 
