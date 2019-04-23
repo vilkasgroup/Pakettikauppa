@@ -26,7 +26,7 @@ test_requirements = [
 
 setup(
     name='pakettikauppa',
-    version='0.1.4',
+    version='0.1.5',
     description="Client python modules for Pakettikauppa integration",
     long_description=readme + '\n\n' + history,
     author="Porntip Chaibamrung",
