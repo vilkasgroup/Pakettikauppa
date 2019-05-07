@@ -20,8 +20,10 @@ class TestCreateShipment(TestCase):
         # customer id = 65
         # 'd4fb618f-1f44-4dc0-bdce-4993f4b91b77'
         # 'b5c95243276d3ff398207f8dea3013fef001e6e5f51fb9cb2252f609608a81'
-        cls.API_KEY = '4f10f3dc-cbc7-47a6-abf7-ec2f8189977f'
-        cls.SECRET = '8b6510ef94f2cb9da3d4320d12ae1cd9c880a71be4e8e983e170a71482d43a278b0d53c4a39ef283'
+        #cls.API_KEY = '4f10f3dc-cbc7-47a6-abf7-ec2f8189977f'
+        #cls.SECRET = '8b6510ef94f2cb9da3d4320d12ae1cd9c880a71be4e8e983e170a71482d43a278b0d53c4a39ef283'
+        cls.API_KEY = '00000000-0000-0000-0000-000000000000'
+        cls.SECRET = '1234567890ABCDEF'
         cls.ROUTING_ID = '1464524676'
         cls.ORDER_ALIAS = 'ORDER10002'
 
