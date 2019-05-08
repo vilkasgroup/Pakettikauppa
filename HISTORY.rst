@@ -2,6 +2,12 @@
 History
 =======
 
+0.1.6 (2019-05-07)
+------------------
+
+* Updated pip and tox in 'requirements_dev.txt' file.
+* Updated Pipfile.lock
+
 0.1.5 (2019-04-02)
 ------------------
 
