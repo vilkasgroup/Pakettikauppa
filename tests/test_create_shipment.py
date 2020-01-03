@@ -380,7 +380,7 @@ class TestCreateShipment(TestCase):
                     },
                     'Shipment.Consignment': {
                         'Consignment.Reference': '3211479032410',
-                        'Consignment.Product': '90010',  # - Posti's product code 2103
+                        'Consignment.Product': '2103',  # - Posti's product code 2103, product code for Bussipaketti is 90010 but then below pickup point is not available
                         'Consignment.Contentcode': 'D',
                         'Consignment.ReturnInstruction': 'E',
                         # 'Consignment.ReturnInstruction': None,
