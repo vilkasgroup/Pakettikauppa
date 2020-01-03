@@ -863,7 +863,7 @@ class PkMerchant(Pakettikauppa):
                     },
                     'Shipment.Consignment': {
                         'Consignment.Reference': '3211479032410',
-                        'Consignment.Product': '90010',  # - Posti's product code 2103 (Postipaketti)
+                        'Consignment.Product': '2103',  # - Posti's product code 2103 (Postipaketti), product code for Bussipaketti is 90010 but then below pickup point is not available
                         'Consignment.Contentcode': 'D',  # Order->get('PR_ContentCode')
                         'Consignment.ReturnInstruction': 'E',  # Order->get('PR_ReturnInstruction')
                         # 'Consignment.ReturnInstruction': None,
