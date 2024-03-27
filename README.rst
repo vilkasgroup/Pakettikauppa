@@ -3,6 +3,11 @@ Pakettikauppa
 =============
 
 
+===
+NOTE: Pakettikauppa is ending their service 31.5.2024 and this repository is now marked as archived.
+===
+
+
 .. image:: https://img.shields.io/pypi/v/pakettikauppa.svg
         :target: https://pypi.python.org/pypi/pakettikauppa
 
@@ -54,4 +59,3 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
-
